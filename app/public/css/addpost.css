@@ -1,0 +1,51 @@
+.content {
+    padding: 1em 0;
+}
+
+label {
+    display:block;
+    font-size: 1.4em;
+}
+
+textarea, input, button {
+    width: 100%;
+    font-size: 1em;
+    box-sizing: border-box;
+    padding: 1em;
+
+    border: 1px solid #333;
+
+    -webkit-appearance: none;
+}
+
+form {
+    width: 600px;
+    margin: auto;
+    padding: 1em;
+    border-radius: 0.5em;
+    border: 1px solid #DDD;
+    box-shadow: 3px 3px 15px 1px rgba(0,0,0,0.08)
+}
+
+.formElement {
+    margin-bottom: 1em;
+}
+
+.formElement textarea {
+    height: 10em;
+}
+
+/* .formElement input[type="button"]:hover{ */
+.formElement button:hover{
+    background-color: rgb(50, 141, 228);
+}
+
+/* .formElement input[type="button"]{ */
+.formElement button{
+    width: auto;
+    padding: 0.5em 1em;
+    background-color: rgb(25, 111, 193);
+    color: white;
+    border: 0px;
+    border-radius: 0.3em;
+}

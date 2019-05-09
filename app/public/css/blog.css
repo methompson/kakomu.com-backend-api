@@ -1,0 +1,57 @@
+.blogContainer {
+    margin: 2em 0;
+    padding: 2em;
+    box-sizing: border-box;
+    border-radius: 0.5em;
+    border: 1px solid #DDD;
+    box-shadow: 3px 3px 15px 1px rgba(0,0,0,0.08)
+}
+
+.blogContainer h1{
+    margin: 0;
+}
+
+.blogContainer a {
+    color: #153f8d;
+}
+
+.blogContainer a:hover {
+    color: #5897dc;
+}
+
+.blogContainer .blogDate{
+    font-size: 0.8em;
+    color: #999;
+    margin-bottom: 1em;
+}
+
+.blogContainer .blogContent {
+    padding-bottom: 1em;
+    margin-bottom: 1em;
+    border-bottom: 1px solid #AAA;
+}
+
+.pagination {
+    text-align: center;
+    margin: 1em 0;
+}
+
+.pagination .pageNum {
+    font-size: 1.3em;
+    display: inline-block;
+    padding: 0 1em;
+}
+
+.pagination a {
+    color: white;
+    background-color: #ff0056;
+    padding: 0.5em;
+    border-radius: 0.4em;
+    transition-duration: 0.4s;
+    text-decoration: none;
+}
+
+.pagination a:hover {
+    color: #eee;
+    background-color: #c80043;
+}

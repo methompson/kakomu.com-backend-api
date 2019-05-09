@@ -1,0 +1,21 @@
+<form method="POST" action="/add-post">
+    <h2>Add a new Blog Post</h2>
+    <div class="formElement">
+        <label>Title</label>
+        <input type="text" name="title" id="title" placeholder="Title" value="<%= title %>" />
+    </div>
+
+    <div class="formElement">
+        <label>Tags</label>
+        <input type="text" name="tags" id="tags" placeholder="Tags" value="<%= tags %>" />
+    </div>
+
+    <div class="formElement">
+        <textarea type="text" name="content" id="content" placeholder="Type something here..."><%= blogcontent %></textarea>
+    </div>
+
+    <div class='formElement'>
+        <!-- <input type='button' value='Submit' /> -->
+        <button>Submit</button>
+    </div>
+</form>

@@ -1,0 +1,29 @@
+<form method="POST" action="/edit-post">
+    <h2>Edit Your Blog Post</h2>
+    <div class="formElement">
+        <label>Web Address</label>
+        <input type="text" name="newSlug" id="newSlug" placeholder="URL" value="<%= newSlug %>"/>
+    </div>
+
+    <div class="formElement">
+        <label>Title</label>
+        <input type="text" name="title" id="title" placeholder="Title" value="<%= title %>"/>
+    </div>
+
+    <div class="formElement">
+        <label>Tags</label>
+        <input type="text" name="tags" id="tags" placeholder="Tags" value="<%= tags %>" />
+    </div>
+
+    <div class="formElement">
+        <textarea type="text" name="content" id="content" placeholder="Type something here..."><%= blogcontent %></textarea>
+    </div>
+
+    <input type="hidden" name="oldSlug" value="<%= oldSlug %>" />
+    <input type="hidden" name="id" value="<%= id %>" />
+
+    <div class='formElement'>
+        <!-- <input type='button' value='Submit' /> -->
+        <button>Submit</button>
+    </div>
+</form>

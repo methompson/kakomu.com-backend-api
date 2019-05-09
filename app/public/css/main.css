@@ -1,0 +1,80 @@
+body{
+    margin: 0px;
+}
+
+#page_container {
+    position: relative;
+    min-height: 100vh;
+    padding-bottom: 3em;
+    box-sizing: border-box;
+}
+
+header {background-color: rgb(36, 191, 113);padding: 1em;}
+
+nav a {
+    color: white;
+    text-decoration: none;
+    transition-duration: 0.4s;
+    border-bottom: 1px solid rgba(0,0,0,0);
+    font-weight: 700;
+    font-size: 1.2em;
+}
+
+nav a:hover {
+    color: #EEE;
+	border-bottom: 1px solid #EEE;
+}
+
+@media screen and (min-width: 1200px){
+    header nav,
+    footer .footer_content,
+    .content {
+        max-width: 1000px;
+        margin: auto;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1199px){
+    header nav,
+    footer .footer_content,
+    .content {
+        max-width: 960px;
+        margin: auto;
+        padding: 0px 2em;
+    }
+}
+
+footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: #777;
+    color: white;
+}
+
+.footer_content{
+    padding: 1em 0;
+    line-height: 1em;
+}
+
+.error, .message {
+    text-align: center;
+    padding: 0.5em;
+    box-sizing: border-box;
+    border-radius: 0.3em;
+    font-size: 1.4em;
+    margin-bottom: 1em;
+    -webkit-box-shadow: 3px 3px 32px -10px rgba(0,0,0,0.2);
+    -moz-box-shadow: 3px 3px 32px -10px rgba(0,0,0,0.2);
+    box-shadow: 3px 3px 32px -10px rgba(0,0,0,0.2);
+}
+
+.error {
+    background-color: rgb(242, 33, 83);
+    color: white;
+}
+
+.message {
+    background-color: #1a9fc4;
+    color: white;
+}
