@@ -4,10 +4,17 @@ const Blog = require('../controllers/blog.js');
 
 const router = express.Router();
 
-//Front Page
-router.get('/', Blog.getBlogList);
+const placeholder = (req, res, next) => {
+  next();
+};
 
-// Individual Bloog Posts
-router.get('/blog/:slug', Blog.getBlogPost);
+//Front Page
+router.get('/', placeholder);
+
+// Individual Blog Posts
+router.get('/blog/:slug', placeholder);
+
+// Blog Pages
+router.get('/page/:pageNum', placeholder);
 
 module.exports = router;
