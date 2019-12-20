@@ -10,6 +10,10 @@ const uuid = require('uuid/v4');
 // Getting the database controller
 const db = require('./controllers/db.js');
 
+// Getting routes
+const blogRoutes = require('./routes/blog');
+const adminRoutes = require('./routes/blog-admin');
+
 // Setting the timezone
 process.env.TZ = "America/Chicago";
 
@@ -31,15 +35,18 @@ app.use( session({
     },
 }) );
 
+app.use('/blog', blogRoutes);
+app.use('/admin', adminRoutes);
+
 app.get('/', (req, res, next) => {
-    res.send("<h1>Welcome to my blog!</h1>")
+    res.send("<h1>Welcome to my blog!!</h1>")
 });
 
 // 404 Error
 app.use('/:path', (req, res, next) => {
     let path = req.params.path;
-    // res.status(404).send("<h1>" + path + " Not Found</h1>");
-    res.status(404).render('404', {path: path});
+    res.status(404).send("<h1>" + path + " Not Found</h1>");
+    // res.status(404).render('404', {path: path});
 });
 
 const server = http.createServer(app);

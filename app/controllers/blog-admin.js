@@ -3,7 +3,6 @@ const Sequelize = require('sequelize');
 const slug = require('slug');
 
 const Post = require('../models/post.js');
-const Message = require('./message.js');
 
 // This function queries the database for the provided
 // slug, determines if it's unique and if not, returns a
