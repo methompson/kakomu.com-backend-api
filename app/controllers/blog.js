@@ -1,124 +1,153 @@
-const Sequelize = require('sequelize');
-
 const Post = require('../models/post.js');
-const Message = require('./message.js');
 
-function getTotalPosts(){
-    return Post.findAll({
-        attributes: [ [Sequelize.fn('COUNT', Sequelize.col('*')), 'total'] ]
-    }).then(  (result) => {
-        return result[0].dataValues.total;
-    }).catch( (err) => {
-        console.log(err);
+/**
+ * 
+ * @param {Numbner} id The id of the blog post we wish to retrieve
+ * @return {Promise} The result from the database query, either a database post or an error
+ */
+const getBlogPostById = async (id) => {
+  if (  typeof id !== typeof 1
+    ||  id < 0
+  ) {
+    throw "Invalid Post Id.";
+  }
+
+  return Post.findOne({
+    where: {
+      id
+    },
+  })
+    .then((result) => {
+      if (!result) {
+        throw "Invalid Post Id";
+      }
+
+      return {
+        id:             result.dataValues.id,
+        slug:           result.dataValues.slug,
+        title:          result.dataValues.title,
+        tags:           result.dataValues.tags,
+        content:        result.dataValues.content,
+        datePublished:  result.dataValues.datePublished,
+        dateUpdated:    result.dataValues.updatedAt,
+        published:      result.dataValues.published,
+      };
+    })
+    .catch((err) => {
+      console.log(err);
+      throw err;
     });
-}
+};
 
-exports.getBlogList = async (req, res, next) => {
+/**
+ * 
+ * @param {String} slug the slug we're searching for.
+ * @return {Promise} The result from the database query, either a database post or an error
+ */
+const getBlogPostBySlug = async (slug = "") => {
 
-    // Getting the posts per page.
-    const limit = 5;
+  if (  typeof slug !== typeof ""
+    ||  slug.length === 0
+  ) {
+    throw "Invalid Post Slug.";
+  }
 
-    // Getting the total number of posts
-    let totalPosts = await getTotalPosts();
-    let totalPages = Math.ceil(totalPosts/limit);
+  return Post.findOne({
+    where: {
+      slug
+    },
+  })
+    .then((result) => {
+      if (!result) {
+        throw "Invalid Post Slug.";
+      }
 
-    // Calculating the Offset based upon the p value passed in the query
-    let offset = 0;
-    let page = 1;
-    
-    if (req.query.p){
-
-        // Makes a check to determine if requested page is less than the 
-        // total pages.
-        page = req.query.p < totalPages ? req.query.p : totalPages;
-        offset = (page - 1) * 5;
-    }
-
-    // Checks if the next page should be displayed
-    let nextPage = true;
-    if (page == totalPages){
-        nextPage = false;
-    }
-
-    // Checks if the previous page should be displayed
-    let prevPage = false;
-    if (page > 1){
-        prevPage = true;
-    }
-
-    console.log("Page", page);
-    
-    Post.findAll({
-        limit: limit,
-        offset: offset,
-        order: [ ['datePublished', 'ASC'], ]
-    }).then( (results) => {
-
-        let posts = [];
-
-        results.forEach( (p) => {
-            posts.push({
-                slug: p.dataValues.slug,
-                title: p.dataValues.title,
-                tags: p.dataValues.tags,
-                content: p.dataValues.content,
-                date: p.dataValues.datePublished,
-            });
-        });
-
-        // console.log(posts.length, posts);
-        
-        res.render('home', {
-            errors:Message.getErrors(req),
-            messages:Message.getMessages(req),
-            posts: posts,
-            pageNum: page,
-            nextPage: nextPage,
-            prevPage: prevPage,
-        });
-
-    }).catch( (err) => {
-        console.log(err);
+      return {
+        id:             result.dataValues.id,
+        slug:           result.dataValues.slug,
+        title:          result.dataValues.title,
+        tags:           result.dataValues.tags,
+        content:        result.dataValues.content,
+        datePublished:  result.dataValues.datePublished,
+        dateUpdated:    result.dataValues.updatedAt,
+        published:      result.dataValues.published,
+      };
+    })
+    .catch((err) => {
+      console.log(err);
+      throw err;
     });
+};
 
-}
+/**
+ * 
+ * @param {Number} page The start page to query
+ * @param {Number} limit The total posts per page (affects the starting page)
+ * @return {Promise} The results from the database query or an error.
+ */
+const getBlogPostsByPage = async (page = 1, limit = 5) => {
 
-exports.getBlogPost = (req, res, next) => {
-    Post.findOne({
-        where:{slug: req.params.slug},
-    }).then( (result) => {
+  if (  typeof page !== typeof 1
+    ||  typeof limit !== typeof 1
+  ){
+    throw "Invalid parameters provided";
+  }
 
-        // console.log("getBlogPost result",result);
+  offset = (page - 1) * limit;
 
-        if (!result){
-            return res.render('error', {
-                errors:Message.getErrors(req),
-                messages:Message.getMessages(req),
-            });
-        }
+  // findAll returns an array of post objects.
+  return Post.findAll({
+    limit,
+    offset: offset,
+    order: [
+      ['datePublished', 'ASC'],
+    ]
+  })
+    .then((results) => {
+      const posts = [];
 
-        let blogPost = {
-            slug: result.dataValues.slug,
-            title: result.dataValues.title,
-            tags: result.dataValues.tags,
-            content: result.dataValues.content,
-            date: result.dataValues.datePublished,
-        };
-
-        console.log(blogPost);
-
-        // console.log(typeof result.dataValues.datePublished);
-
-        return res.render('blog-post', {
-            errors: Message.getErrors(req),
-            messages: Message.getMessages(req),
-            blogPost: blogPost
+      // We cycle through the results and retrieve the relevant data that we need
+      results.forEach((r) => {
+        posts.push({
+          id:             r.dataValues.id,
+          slug:           r.dataValues.slug,
+          title:          r.dataValues.title,
+          tags:           r.dataValues.tags,
+          content:        r.dataValues.content,
+          datePublished:  r.dataValues.datePublished,
+          dateUpdated:    r.dataValues.updatedAt,
+          published:      r.dataValues.published,
         });
+      });
 
-        // res.send('<h1>Title: ' + req.params.slug + "</h1>");
-
-    }).catch( (err) => {
-
+      return posts;
+    })
+    .catch((err) => {
+      console.log(err);
+      throw err;
     });
-    
+};
+
+
+const getTotalPosts = () => {
+  return Post.findAll({
+    attributes: [
+      [Sequelize.fn('COUNT', Sequelize.col('*')), 'total']
+    ]
+  })
+    .then((result) => {
+      return result[0].dataValues.total;
+    })
+    .catch((err) => {
+      console.log(err);
+      throw err;
+    });
+};
+
+
+module.exports = {
+  getBlogPostById,
+  getBlogPostBySlug,
+  getBlogPostsByPage,
+  getTotalPosts,
 };
