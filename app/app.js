@@ -13,6 +13,7 @@ const db = require('./controllers/db.js');
 // Getting routes
 const blogRoutes = require('./routes/blog');
 const adminRoutes = require('./routes/blog-admin');
+const authRoutes = require('./routes/auth');
 
 // Setting the timezone
 process.env.TZ = "America/Chicago";
@@ -20,9 +21,11 @@ process.env.TZ = "America/Chicago";
 // Creating the express app
 const app = express();
 
-// Registering middlewares for later use
 // Setting up the body parser for getting form data, etc.
-app.use( bodyParser.urlencoded({ extended: false }) );
+// app.use( bodyParser.urlencoded({ extended: false }) );
+
+// Setting up the body parser for getting JSON data
+app.use( bodyParser.json() );
 
 // Setting up the Session handler
 app.use( session({
@@ -37,7 +40,11 @@ app.use( session({
 
 app.use('/blog', blogRoutes);
 app.use('/admin', adminRoutes);
+app.use('/auth', authRoutes);
 
+// Fallback routes
+
+// Home page
 app.get('/', (req, res, next) => {
     res.send("<h1>Welcome to my blog!!</h1>")
 });
@@ -56,6 +63,7 @@ db.sync()
         // console.log(result);
         console.log("DB Synced");
         server.listen(3000);
-    }).catch( (err) => {
+    })
+    .catch( (err) => {
         console.log(err);
     });

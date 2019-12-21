@@ -1,8 +1,8 @@
 const Sequelize = require('sequelize');
 
-const sequelize = require('../controllers/db.js');
+const sql_db = require('../controllers/db.js');
 
-const Post = sequelize.define('post', {
+const Post = sql_db.define('post', {
     id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,

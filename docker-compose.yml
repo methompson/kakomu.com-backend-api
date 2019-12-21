@@ -7,7 +7,6 @@ services:
         volumes:
             - ./app:/srv/app
         container_name: node
-        #command: node /srv/app/app.js
         command: npm start --prefix /srv/app
     db:
         container_name: mysql
@@ -18,9 +17,9 @@ services:
         restart: always
         environment:
             MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: blog
-            MYSQL_USER: blog
-            MYSQL_PASSWORD: blog
+            MYSQL_DATABASE: blog_db
+            MYSQL_USER: blog_user
+            MYSQL_PASSWORD: blog_pw
 
     adminer:
         container_name: adminer
