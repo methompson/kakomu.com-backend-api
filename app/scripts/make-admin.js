@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 const readline = require('readline');
 const {Writable} = require('stream');
+
+const bcrypt = require('bcryptjs');
 // const Writable = require('stream').Writable;;
 
 const User = require('../models/user.js');
@@ -46,7 +48,53 @@ function chooseLastName(instance, data, resolve){
       resolve();
     } else {
       console.log("Last Name is Required");
-      chooseFirstName(instance, data, resolve);
+      chooseLastName(instance, data, resolve);
+    }
+  });
+}
+
+function choosePassword(instance, data, resolve, mutableStdout){
+  // Reset the mute switch to false to show the first line
+  mutableStdout.muted = false;
+
+  instance.question(`Please choose a password.\n`, (password) => {
+    // We want to enforce a password length
+    if (password.length >= 8){
+      // This unmutes the next section to confirm our passwords
+      mutableStdout.muted = false;
+
+      instance.question(`Please confirm your password.\n`, (passwordConf) => {
+        if (passwordConf === password){
+          data.password = password;
+
+          // Unmuting for the final time
+          mutableStdout.muted = false;
+          resolve();
+        } else {
+          console.log("Passwords do not match.\n");
+          choosePassword(instance, data, resolve, mutableStdout);
+        }
+      });
+
+      // This mutes the second password input
+      mutableStdout.muted = true;
+    } else {
+      console.log("Your password must be at least 8 characters long");
+      choosePassword(instance, data, resolve, mutableStdout);
+    }
+  });
+  // This sets the stdout to mute for the first password input line.
+  mutableStdout.muted = true;
+}
+
+function chooseEmail(instance, data, resolve){
+  instance.question(`What's the user's email address?\n`, (email) => {
+    if (email.length > 0){
+      data.email = email;
+      resolve();
+    } else {
+      console.log("Last Name is Required");
+      chooseEmail(instance, data, resolve);
     }
   });
 }
@@ -61,18 +109,28 @@ return new Promise((resolve, reject) => {
   })
   .then(() => {
     return new Promise((resolve, reject) => {
-      // console.log(`Please Choose a Password.\n`);
-      instance.question(`Please Choose a Password.\n`, (password) => {
-        data.password = password;
-        resolve();
-        mutableStdout.muted = false;
-      });
-      mutableStdout.muted = true;
+      choosePassword(instance, data, resolve, mutableStdout);
     });
   })
   .then(() => {
-    console.log("Name", data.firstName, data.lastName);
-    console.log("Password", data.password);
+    return new Promise((resolve, reject) => {
+      chooseEmail(instance, data, resolve);
+    });
+  })
+  .then(() => {
+    return bcrypt.hash(data.password, 12);
+  })
+  .then((result) => {
+    return User.create({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      userType: 'admin',
+      password: result,
+    });
+  })
+  .then((result) => {
+    console.log(result.dataValues);
     instance.close();
   });
 

@@ -5,7 +5,7 @@ const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
 const session = require('express-session');
-const uuid = require('uuid/v4');
+const uuidv4 = require('uuid/v4');
 
 // Getting the database controller
 const db = require('./controllers/db.js');
@@ -21,6 +21,8 @@ process.env.TZ = "America/Chicago";
 // Creating the express app
 const app = express();
 
+global.jwtSecret = uuidv4();
+
 // Setting up the body parser for getting form data, etc.
 // app.use( bodyParser.urlencoded({ extended: false }) );
 
@@ -34,7 +36,7 @@ app.use( session({
     saveUninitialized: true,
     genid: (req) => {
         console.log("session init", req.sessionID);
-        return uuid();
+        return uuidv4();
     },
 }) );
 

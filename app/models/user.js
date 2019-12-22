@@ -20,6 +20,7 @@ const User = sql_db.define('user', {
     email: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
     },
     userType: {
         type: Sequelize.ENUM('admin', 'editor'),
