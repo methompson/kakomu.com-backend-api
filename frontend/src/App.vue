@@ -2,11 +2,40 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
+      <router-link to="/about">About</router-link> |
+      <router-link v-if="loggedIn" to="/about">Account</router-link> |
+      <a v-if="loggedIn" href="#" @click="logOut">Log Out</a>
+      <router-link v-else to="/login">Log In</router-link>
     </div>
     <router-view/>
   </div>
 </template>
+
+<script>
+export default {
+  computed: {
+    authPayload(){
+      return this.$store.state.authPayload;
+    },
+    loggedIn(){
+      return this.$loggedIn();
+    },
+  },
+  watch: {
+    authPayload(){
+      this.$store.dispatch("checkAuthToken")
+        .then((result) => {
+        });
+    },
+  },
+  methods: {
+    logOut(e){
+      e.preventDefault();
+      this.$store.dispatch("logUserOut");
+    },
+  },
+};
+</script>
 
 <style lang="scss">
 #app {
