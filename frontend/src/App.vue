@@ -3,7 +3,10 @@
     <div id="nav">
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link> |
-      <router-link v-if="loggedIn" to="/about">Account</router-link> |
+      <span v-if="loggedIn">
+        <router-link to="/account">Account</router-link> |
+        <router-link to="/add-post">Add Post</router-link> |
+      </span>
       <a v-if="loggedIn" href="#" @click="logOut">Log Out</a>
       <router-link v-else to="/login">Log In</router-link>
     </div>
@@ -13,12 +16,23 @@
 
 <script>
 export default {
+  mounted(){
+    const token = window.localStorage.getItem('authToken');
+    if (token){
+      this.$store.dispatch("insertAuthToken", {
+        token,
+      })
+        .then(() => {
+          return this.$store.dispatch("checkAuthToken");
+        });
+    }
+  },
   computed: {
     authPayload(){
       return this.$store.state.authPayload;
     },
     loggedIn(){
-      return this.$loggedIn();
+      return this.$checkAuthData();
     },
   },
   watch: {
@@ -29,9 +43,15 @@ export default {
     },
   },
   methods: {
-    logOut(e){
-      e.preventDefault();
-      this.$store.dispatch("logUserOut");
+    logOut(ev){
+      ev.preventDefault();
+      this.$store.dispatch("logUserOut")
+        .then(() => {
+          // Redirect the user to the home page.
+          this.$router.replace({
+            path: "/",
+          });
+        });
     },
   },
 };

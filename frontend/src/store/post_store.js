@@ -18,6 +18,47 @@ const actions = {
         console.log(err);
       });
   },
+
+  transmitPost(context, payload){
+    return new Promise((resolve, reject) => {
+
+      if (!('post' in payload) || typeof payload.post !== typeof {}){
+        reject();
+        return;
+      }
+
+      if ( !('authToken' in context.state) || context.state.authToken.length === 0){
+        reject();
+        return;
+      }
+
+      console.log(context.state.authToken);
+
+      const url = context.state.restUrl + '/api/admin/add';
+
+      console.log(payload.post);
+
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + context.state.authToken,
+        },
+        body: JSON.stringify(payload.post),
+      })
+        .then((res) => {
+          return res.json();
+        })
+        .then((res) => {
+          console.log(res);
+          resolve(res);
+        })
+        .catch((err) => {
+          console.log(err);
+          reject(err);
+        });
+    });
+  },
 };
 
 export {

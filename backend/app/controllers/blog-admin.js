@@ -128,9 +128,10 @@ const addPost = (req, res, next) => {
 
     // Check what's actually IN the body
     post.title = 'title' in req.body ? req.body.title : "";
-    post.tags = 'tags' in req.body ? req.bodhy.tags : "";
+    post.tags = 'tags' in req.body ? req.body.tags : "";
     post.content = 'content' in req.body ? req.body.content : "";
-    post.published = 'published' in req.body ? req.body.published: false;
+    post.published = 'published' in req.body ? req.body.published : false;
+    post.authorId = 'authorId' in req.body ? req.body.authorId : req._user.userId;
 
     if (!('datePublished') in req.body || !post.published){
       post.datePublished = new Date(0);
@@ -144,6 +145,7 @@ const addPost = (req, res, next) => {
   })  
     .then((result) => {
       const slug = result;
+      post.slug = slug;
 
       return new Promise((resolve, reject) => {
         pool.execute(`
@@ -163,14 +165,14 @@ const addPost = (req, res, next) => {
         `,
           [
             post.title,
-            slug,
+            post.slug,
             post.content,
             post.tags,
             post.published,
             post.datePublished,
             now,
             now,
-            req._user.userId,
+            post.authorId,
           ],
           (err, results, fields) => {
             if (err) {
@@ -189,20 +191,30 @@ const addPost = (req, res, next) => {
     .then((result) => {
       let message;
       if (result.affectedRows > 0){
-        message = "New Post Added, Id " + result.insertId;
+        message = {
+          message: "New Post Added, Id " + result.insertId,
+          id: result.insertId,
+          slug: post.slug,
+        };
+        
       } else {
-        message = "No Post added";
+        message = {
+          message: "No Post added"
+        };
       }
 
-      return res.status(200).send({
-        message,
-      });
+      return res.status(200).send(message);
     })
     .catch((err) => {
       // We might reach this area from a promise that I didn't throw or reject
       // We're just going to display a generic message if that's the case
       let error;
-      if (typeof err == typeof {}){
+      if (
+            typeof err == typeof {}
+        &&  'status' in err
+        &&  'message' in err
+        &&  'error' in err
+      ){
         error = err;
       } else {
         error = {

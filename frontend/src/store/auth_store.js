@@ -64,7 +64,19 @@ const actions = {
     window.localStorage.removeItem("authToken");
   },
 
-  checkAuthToken(context, payload){
+  // We run this method when we have an auth token from the local storage
+  // and we want to insert it into the store
+  insertAuthToken(context, payload){
+    if (!('token' in payload)){
+      return;
+    }
+
+    context.commit("setAuthToken", {
+      token: payload.token,
+    });
+  },
+
+  checkAuthToken(context){
     if ( !('exp' in context.state.authPayload) ){
       return false;
     }
