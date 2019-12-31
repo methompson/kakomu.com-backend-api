@@ -12,15 +12,20 @@
       {{ post.title }}
     </span>
   </h1>
-  <div>
-    {{ post.content }}
+  <div
+    v-html="renderedContent">
   </div>
 </div>
 
 </template>
 
 <script>
+import MarkdownIt from 'markdown-it';
+
 export default {
+  mounted(){
+    this.md = new MarkdownIt();
+  },
   props: {
     post: {
       type: Object,
@@ -34,12 +39,24 @@ export default {
       },
     },
   },
+  data(){
+    return {
+      md: null,
+    };
+  },
   computed: {
     defaultPost(){
       if ('default' in this.post && this.post.default === true){
         return true;
       }
       return false;
+    },
+    renderedContent(){
+      if (!this.md){
+        return "";
+      }
+
+      return this.md.render(this.post.content);
     },
   },
 };

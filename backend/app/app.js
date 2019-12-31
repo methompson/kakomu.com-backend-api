@@ -5,11 +5,6 @@ const http = require('http');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const session = require('express-session');
-const uuidv4 = require('uuid/v4');
-
-// Getting the database controller
-const db = require('./controllers/db.js');
 
 // Setting the timezone
 process.env.TZ = "America/Chicago";
@@ -25,17 +20,6 @@ global.jwtSecret = "secret";
 
 // Setting up the body parser for getting JSON data
 app.use( bodyParser.json() );
-
-// Setting up the Session handler
-app.use(session({
-  secret: "2f0f4343-058e-4260-aabf-9448cced10ff4a7d512a-caee-4287-81d2-2cf25610109fa1204f88-0b88-42b3-829d-9e728edfd4764a5f1ffb-9592-4120-9eb7-c99aecde5cb6",
-  resave: false,
-  saveUninitialized: true,
-  genid: (req) => {
-    // console.log("session init", req.sessionID);
-    return uuidv4();
-  },
-}));
 
 // Getting routes
 const blogRoutes = require('./routes/blog');

@@ -12,8 +12,17 @@
     <div>
       <label class="overLabel">Type Your Post Here</label>
       <textarea
+        id="contentArea"
+        class="contentArea"
         name="content"
         v-model="content" />
+    </div>
+
+    <div
+      v-if="contentPreview.length > 0"
+      class="preview"
+      id="contentPreview"
+      v-html="contentPreview">
     </div>
 
     <div class="fieldGroup">
@@ -40,12 +49,53 @@
 </template>
 
 <script>
+import SimpleMDE from "simplemde";
+import {} from 'simplemde/dist/simplemde.min.css';
+import MarkdownIt from 'markdown-it';
+
 export default {
   mounted(){
     this.$checkAuthAndRedirect();
+
+    this.md = new MarkdownIt();
+
+    this.contentArea = new SimpleMDE({
+      element: document.getElementById("contentArea"),
+      toolbar: [
+        "bold",
+        "italic",
+        "strikethrough",
+        "|",
+        "heading-smaller",
+        "heading-bigger",
+        "|",
+        "code",
+        "quote",
+        "|",
+        "horizontal-rule",
+        "unordered-list",
+        "ordered-list",
+        "|",
+        "clean-block",
+        "link",
+        "image",
+        "table",
+      ],
+    });
+  },
+  computed: {
+    contentPreview(){
+      if (!this.contentArea){
+        return "";
+      }
+
+      return this.md.render(this.contentArea.value());
+    },
   },
   data(){
     return {
+      contentArea: null,
+      md: null,
       title: "",
       content: "",
       tags: "",
@@ -57,12 +107,13 @@ export default {
       return {
         title: this.title,
         tags: this.tags,
-        content: this.content,
+        content: this.contentArea.value(),
       };
     },
     saveDraft(){
       const post = this.assemblePostData();
       post.published = false;
+      console.log(post);
       this.transmitPost(post);
     },
     publishDraft(){
@@ -96,6 +147,12 @@ export default {
 
 .overLabel {
   display: block;
+}
+
+.contentArea {
+  width: 80%;
+  max-width: 800px;
+  height: 10em;
 }
 
 </style>

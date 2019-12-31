@@ -1,16 +1,20 @@
 <template>
   <div>
     <h1>{{ post.title }}</h1>
-    <div>{{ post.content }}</div>
+    <div
+      v-html="renderedContent"></div>
     
   </div>
 </template>
 
 <script>
+import MarkdownIt from 'markdown-it';
+
 export default {
   data(){
     return {
       slug: '',
+      md: null,
       post: {
         title: "",
         author: "",
@@ -20,6 +24,15 @@ export default {
         tags: "",
       },
     };
+  },
+  computed: {
+    renderedContent(){
+      if (!this.md){
+        return "";
+      }
+
+      return this.md.render(this.post.content);
+    },
   },
   watch: {
     // $route(to, from){
@@ -34,7 +47,8 @@ export default {
   mounted(){
     // We get the slug from the route parameter
     // TODO Reroute to a 404 error if the slug wasn't included
-    console.log("Mounted");
+    this.md = new MarkdownIt();
+    
     if ('slug' in this.$route.params){
       this.slug = this.$route.params.slug;
       this.getPost();
