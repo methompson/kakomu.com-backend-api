@@ -26,8 +26,7 @@ const getBlogPostById_db = (id) => {
         author,
         updatedAt
       FROM posts
-      WHERE published = false
-      AND id = ?
+      WHERE id = ?
       ORDER BY datePublished DESC
     `,
     [id],
@@ -127,7 +126,9 @@ const getBlogPostBySlug = (req, res, next) => {
     });
   })
     .then((results) => {
-      res.status(200).send(results[0]);
+      console.log(results[0]);
+      const data = results.length > 0 ? results[0] : {};
+      res.status(200).json(data);
     })
     .catch((err) => {
       // We might reach this area from a promise that I didn't throw or reject

@@ -193,8 +193,10 @@ const addPost = (req, res, next) => {
       if (result.affectedRows > 0){
         message = {
           message: "New Post Added, Id " + result.insertId,
-          id: result.insertId,
-          slug: post.slug,
+          post:{
+            id: result.insertId,
+            slug: post.slug,
+          },
         };
         
       } else {
@@ -263,12 +265,21 @@ const editPost = (req, res, next) => {
     // Get the id from the body for the next step
     post.id = Number(req.body.id);
 
+
     resolve();
   })
     .then(() => {
       return getBlogPostById_db(post.id);
     })
     .then((results) => {
+      if (results.results.length < 1){
+        throw {
+          status: 400,
+          message: "Post Not Found",
+          error: "Request Error",
+        };
+      }
+      
       if (results.err) {
         throw {
           status: 500,
@@ -296,24 +307,13 @@ const editPost = (req, res, next) => {
       } else if (post.published && oldPost.published) {
         post.datePublished = oldPost.datePublished;
       } else {
-        post.datePublished = 0;
+        post.datePublished = new Date(0);
       }
 
       return getUniqueSlug(post.title, oldPost.slug);
     })
     .then((result) => {
       post.slug = result;
-
-      console.log("The post");
-      console.log(post);
-      console.log(post.title,
-        post.slug,
-        post.content,
-        post.tags,
-        now,
-        post.datePublished,
-        post.published,
-        post.id);
 
       return new Promise((resolve, reject) => {
         pool.execute(`
@@ -370,7 +370,7 @@ const editPost = (req, res, next) => {
       } else {
         error = {
           status: 500,
-          message: "Error adding Post",
+          message: "Error editing Post",
           error: err,
         };
       }
@@ -386,24 +386,20 @@ const deletePost = (req, res, next) => {
   // Do we have the proper values in the request?
   let id;
   return new Promise((resolve, reject) => {
-    console.log("first deletePost");
     if (!('id' in req.body)) {
-      reject({
+      return reject({
         status: 400,
         message: "Required data not provided",
         error: "Id Required",
       });
-      return;
     }
   
     if (req.body.id < 1){
-      reject({
+      return reject({
         status: 400,
         message: "Required data not provided",
         error: "Invalid Id",
       });
-
-      return;
     }
 
     // We save the id for use in another scope.
@@ -435,12 +431,15 @@ const deletePost = (req, res, next) => {
       // The affectedRows value lists how many rows were actually deleted.
       let message;
       if (result.affectedRows > 0){
-        message = "Post successfully deleted, Id " + id;
+        message = "Post successfully deleted";
       } else {
-        message = "No Post deleted for Id " + id;
+        message = "No Post deleted";
       }
       res.status(200).send({
         message,
+        post: {
+          id,
+        }
       });
     })
     .catch((err) => {
@@ -452,12 +451,14 @@ const deletePost = (req, res, next) => {
         &&  typeof err.status == typeof 1
       ){
         error = err;
+
       } else {
         error = {
           status: 500,
           message: "Error Deleting Post",
           error: err,
         };
+        
       }
 
       return res.status(error.status).send({
