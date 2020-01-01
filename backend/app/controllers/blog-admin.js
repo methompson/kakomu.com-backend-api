@@ -57,6 +57,12 @@ const getUniqueSlug = (title, oldSlug = "") => {
     });
 }
 
+const getBlogPostBySlug = (req, res, next) => {
+  req._admin = true;
+  next();
+};
+
+// This gets the entire blog list, whether or not the posts are published
 const getPostList = (req, res, next) => {
   return new Promise((resolve, reject) => {
     return pool.execute(`
@@ -558,5 +564,6 @@ module.exports = {
     addPost,
     editPost,
     deletePost,
-    changePublication
+    changePublication,
+    getBlogPostBySlug,
 };

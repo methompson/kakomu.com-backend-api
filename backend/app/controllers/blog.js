@@ -72,7 +72,7 @@ const getBlogPostById = (req, res, next) => {
         };
       }
 
-      console.log(error);
+      console.log("error", error);
 
       return res.status(error.status).send({
         message: error.message,
@@ -95,7 +95,7 @@ const getBlogPostBySlug = (req, res, next) => {
       });
     }
 
-    return pool.execute(`
+    let query = `
       SELECT id,
         title,
         slug,
@@ -107,10 +107,19 @@ const getBlogPostBySlug = (req, res, next) => {
         author,
         updatedAt
       FROM posts
-      WHERE published = true
-      AND slug = ?
-      ORDER BY datePublished DESC
-    `,
+      WHERE slug = ?
+    `;
+
+    if (  !('_admin' in req)
+      ||  req._admin !== true
+    ){
+        query += `AND published = true
+        `;
+    }
+
+    query += 'ORDER BY datePublished DESC';
+
+    return pool.execute(query,
     [slug],
     (err, results, fields) => {
       if (err) {
@@ -126,7 +135,6 @@ const getBlogPostBySlug = (req, res, next) => {
     });
   })
     .then((results) => {
-      console.log(results[0]);
       const data = results.length > 0 ? results[0] : {};
       res.status(200).json(data);
     })
@@ -299,9 +307,6 @@ const getTotalPosts = () => {
       WHERE published = true
     `,
     (err, results, fields) => {
-      console.log("results", results);
-      console.log("err", err);
-
       if (err) {
         reject(err);
         return;

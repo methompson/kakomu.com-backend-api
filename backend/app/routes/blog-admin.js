@@ -1,6 +1,7 @@
 const express = require('express');
 
-const postController = require('../controllers/blog-admin.js');
+const postAdminController = require('../controllers/blog-admin.js');
+const postController = require('../controllers/blog.js');
 const authController = require('../controllers/auth.js');
 
 const router = express.Router();
@@ -13,16 +14,16 @@ const placeholder = (req, res, next) => {
 router.get('/', placeholder);
 
 //Gets a full post list including unpublished posts
-router.get('/list', authController.authenticateToken, postController.getPostList);
+router.get('/list', authController.authenticateToken, postAdminController.getPostList);
 
 //Adds a new post, will redirect to the edit page after completion
-router.post('/add', authController.authenticateToken, postController.addPost);
+router.post('/add', authController.authenticateToken, postAdminController.addPost);
 
 //Gets the Edit Post form data
-router.post('/edit', authController.authenticateToken, postController.editPost);
+router.post('/edit', authController.authenticateToken, postAdminController.editPost);
 
 //Deletes a post, redirects to the post list
-router.post('/delete', authController.authenticateToken, postController.deletePost);
+router.post('/delete', authController.authenticateToken, postAdminController.deletePost);
 
 router.post('/publish',
     authController.authenticateToken,
@@ -30,7 +31,7 @@ router.post('/publish',
         req.publication = true;
         next();
     },
-    postController.changePublication);
+    postAdminController.changePublication);
 
 router.post('/unpublish',
     authController.authenticateToken,
@@ -38,6 +39,11 @@ router.post('/unpublish',
         req.publication = false;
         next();
     },
-    postController.changePublication);
+    postAdminController.changePublication);
+
+router.get('/post/:slug',
+    authController.authenticateToken,
+    postAdminController.getBlogPostBySlug,
+    postController.getBlogPostBySlug);
 
 module.exports = router;
