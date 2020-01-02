@@ -225,6 +225,8 @@ const updateUserPassword = (req, res, next) => {
       });
     })
     .then((results) => {
+      // We've updated the password, we don't need to recalculate a token.
+      // The password is not a part of the token.
       res.status(200).send({
         message: "Password Successfully Updated",
         results,
