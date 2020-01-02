@@ -16,4 +16,6 @@ router.post('/login', (req, res, next) => {
   next();
 }, authController.authenticateUser);
 
+router.post('/change-password', authController.authenticateToken, authController.updateUserPassword);
+
 module.exports = router;

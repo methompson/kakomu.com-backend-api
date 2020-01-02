@@ -2,6 +2,36 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const pool = require('../controllers/db.js');
+const {makeError, makeErrorResponse, valsInBody} = require('./utilities.js');
+
+// This function gets a user by Id and returns a promise
+function getUserById(id){
+  return new Promise((resolve, reject) => {
+    // Get the user from the database based upon the id
+    pool.execute(`
+      SELECT id, firstName, lastName, email, userType, password
+      FROM users
+      WHERE id = ?
+    `,
+    [id],
+    (err, results, fields) => {
+      // If an error exists, we're going to throw it.
+      if (err){
+        reject(makeError("Password not updated", "Server Error", 500));
+        return;
+      }
+
+      // If we have no reults, the user doesn't exist
+      if (results.length < 1){
+        reject(makeError("Password not updated", "User Not Found", 401));
+        return;
+      }
+
+      // This is returning our user object
+      resolve(results[0]);
+    });
+  });
+}
 
 /**
  * 
@@ -26,6 +56,7 @@ const authenticateUser = (req, res, next) => {
     `,
     [email],
     (err, results, fields) => {
+
       resolve({
         err,
         results,
@@ -128,7 +159,90 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+const updateUser = (req, res, next) => {
+
+};
+
+// Step 1, see if we have everything we need
+// Step 2, compare the user's token to the user from the id
+// Step 2b, see if the user is an admin (they can change anyone)
+// Step 3, get the user from the id.
+// Step 4, check the user's password
+// Step 5, update the database password
+const updateUserPassword = (req, res, next) => {
+  let user;
+  const reqVals = ['id', 'oldPassword', 'newPassword'];
+
+  console.log(req._user);
+
+  return new Promise((resolve, reject) => {
+    if ( !valsInBody(req.body, reqVals) ){
+      reject(makeError("Password not updated", "Credentials Not Provided", 401));
+      return;
+    }
+
+    resolve();
+  })
+    .then(() => {
+      if (req._user.userId !== req.body.id && req._user.userType !== 'admin'){
+        throw makeError("Password not updated", "Invalid User", 401);
+      }
+
+      return getUserById(req.body.id);
+    })
+    .then((result) => {
+      // If we make it here, the user has been found in the database.
+      // We need to compare the user's old password to the current password
+      user = result;
+      return bcrypt.compare(req.body.oldPassword, user.password);
+    })
+    .then((result) => {
+      // If the passwords don't match, we throw another error
+      if (result !== true){
+        throw makeError("Password not updated", "Invalid Credentials", 401);
+      }
+
+      // We finally arrive at a point where we can update the password
+      // We'll hash the password with bcrypt, then run the SQL query.
+      return bcrypt.hash(req.body.newPassword, 12);
+    })
+    .then((result) => {
+      return new Promise((resolve, reject) => {
+        pool.execute(`
+          UPDATE users
+            SET password = ?
+          WHERE id = ?
+        `,
+        [result, user.id],
+        (err, results, fields) => {
+          if (err){
+            reject(makeError("Password not updated", "Database Error", 500));
+            return;
+          }
+
+          resolve(results);
+        });
+      });
+    })
+    .then((results) => {
+      res.status(200).send({
+        message: "Password Successfully Updated",
+        results,
+      });
+    })
+    .catch((err) => {
+      const error = makeErrorResponse(err);
+
+      return res.status(error.status).json({
+        error: error.error,
+        message: error.message,
+      });
+    });
+};
+
 module.exports = {
   authenticateUser,
   authenticateToken,
+  updateUser,
+  updateUserPassword,
 };
