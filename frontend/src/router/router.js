@@ -4,7 +4,6 @@ import VueRouter from 'vue-router';
 import Home from '../views/Home.vue';
 import Post from '../views/Post.vue';
 import About from '../views/About.vue';
-// import Login from '../views/Login.vue';
 
 Vue.use(VueRouter);
 
@@ -38,16 +37,23 @@ const routes = [
     component: () => import(/* webpackChunkName: "account" */ '../views/Account.vue'),
   },
   {
+    path: '/admin-post-list',
+    name: 'admin-post-list',
+    component: () => import(/* webpackChunkName: "account" */ '../views/AdminPostList.vue'),
+  },
+  {
+    path: '/edit-account',
+    name: 'edit-account',
+    component: () => import(/* webpackChunkName: "account" */ '../views/EditUser.vue'),
+  },
+  {
     path: '/add-post',
     name: 'add-post',
     component: () => import(/* webpackChunkName: "add-post" */ '../views/PostAdd.vue'),
   },
   {
-    path: '/edit-post',
+    path: '/edit-post/:slug',
     name: 'edit-post',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
     component: () => import(/* webpackChunkName: "edit-post" */ '../views/PostEdit.vue'),
   },
 

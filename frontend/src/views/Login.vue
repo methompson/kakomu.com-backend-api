@@ -1,26 +1,27 @@
 <template>
   <div>
     <h1>Login</h1>
+    <form>
+      <div>
+        Email
+        <input
+          type="text" 
+          v-model="email"
+          name="email" />
+      </div>
 
-    <div>
-      Email
-      <input
-        type="text" 
-        v-model="email"
-        name="email" />
-    </div>
-
-    <div>
-      Password
-      <input
-        type="password" 
-        v-model="password"
-        name="password" />
-    </div>
-     <button
-      @click="sendLoginData" >
-      Log In
-     </button>
+      <div>
+        Password
+        <input
+          type="password" 
+          v-model="password"
+          name="password" />
+      </div>
+      <button
+        @click="sendLoginData" >
+        Log In
+      </button>
+     </form>
      <div
       :class="'errorMessage' + (errMsg.length > 0 ? '' : ' blank')">
       {{ errMsg }}
@@ -38,7 +39,8 @@ export default {
     };
   },
   methods: {
-    sendLoginData(){
+    sendLoginData(ev){
+      ev.preventDefault();
       this.$store.dispatch("logUserIn", {
         email: this.email,
         password: this.password,

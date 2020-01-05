@@ -28,13 +28,22 @@ function makeErrorResponse(err){
   } else {
     error = {
       status: 500,
-      message: "Error Updating User",
+      message: "Server Error",
       error: err,
     };
   }
 
   return error;
 };
+
+function sendError(err, res){
+  const error = makeErrorResponse(err);
+  
+  return res.status(error.status).json({
+    error: error.error,
+    message: error.message,
+  });
+}
 
 // This function takes an array of values and checks for their existence in 
 // an object.
@@ -57,5 +66,6 @@ function valsInBody(obj, values){
 module.exports = {
   makeError,
   makeErrorResponse,
+  sendError,
   valsInBody,
 };

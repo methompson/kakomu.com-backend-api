@@ -47,10 +47,17 @@ export default {
       ev.preventDefault();
       this.$store.dispatch("logUserOut")
         .then(() => {
-          // Redirect the user to the home page.
-          this.$router.replace({
-            path: "/",
-          });
+          if (this.$router.currentRoute.path !== "/"){
+            // Redirect the user to the home page.
+            return this.$router.replace({
+              path: "/",
+            });
+          }
+
+          return true;
+        })
+        .catch((err) => {
+          console.log("Error Logging Out", err);
         });
     },
   },

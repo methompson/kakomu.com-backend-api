@@ -3,6 +3,7 @@ const express = require('express');
 const postAdminController = require('../controllers/blog-admin.js');
 const postController = require('../controllers/blog.js');
 const authController = require('../controllers/auth.js');
+const userAdminController = require('../controllers/user-admin.js');
 
 const router = express.Router();
 
@@ -12,6 +13,9 @@ const placeholder = (req, res, next) => {
 
 //Gets the admin panel
 router.get('/', placeholder);
+
+router.post('/change-password', authController.authenticateToken, userAdminController.updateUserPassword);
+router.post('/update-user', authController.authenticateToken, userAdminController.updateUser);
 
 //Gets a full post list including unpublished posts
 router.get('/list', authController.authenticateToken, postAdminController.getPostList);

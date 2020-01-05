@@ -2,6 +2,7 @@ const slug = require('slug');
 
 const {getBlogPostById_db} = require('./blog.js');
 const pool = require('../controllers/db.js');
+const {makeError, makeErrorResponse, sendError, valsInBody} = require('./utilities.js');
 
 // This function queries the database for the provided
 // slug, determines if it's unique and if not, returns a
@@ -20,6 +21,9 @@ const getUniqueSlug = (title, oldSlug = "") => {
     `,
     [postSlug + "%"],
     (err, results, fields) => {
+      if (err){
+        reject(err);
+      }
       // results is an array
       resolve(results);
     })
@@ -51,9 +55,6 @@ const getUniqueSlug = (title, oldSlug = "") => {
       }
       return postSlug;
 
-    })
-    .catch( (err) => {
-      console.log(err);
     });
 }
 
@@ -111,27 +112,20 @@ const addPost = (req, res, next) => {
       ||  !('userId' in req._user)
       ||  typeof req._user.userId !== typeof 1
     ) {
-      return reject({
-        status: 500,
-        message: "Internal Server Error",
-        error: "Correct Data Not Provided",
-      });
+      reject(makeError("Correct Data Not Provided", "Correct Data Not Provided", 500));
+      return;
     }
 
     // Checks if required fields are not filled. Right now, the
     // required field is the Title. If there is no title or its not filled,
     // send an error 400 and get the user to retry.
     if (!('title' in req.body) || req.body.title.length <= 0) {
-
-      // Message.addError(req, 'Required Fields Not Provided');
-      // return res.redirect('/add-post');
-      return reject({
-        status: 400,
-        message: "Required data not provided",
-        error: "Title Required",
-      });
+      reject(makeError("Required data not provided", "Title Required", 400));
+      return;
     }
-
+    resolve();
+  })
+  .then(() => {
     // Check what's actually IN the body
     post.title = 'title' in req.body ? req.body.title : "";
     post.tags = 'tags' in req.body ? req.body.tags : "";
@@ -147,7 +141,7 @@ const addPost = (req, res, next) => {
 
     // Get a unique slug by looking at the database
     // and generating one based on other blog posts
-    resolve(getUniqueSlug(post.title));
+    return getUniqueSlug(post.title);
   })  
     .then((result) => {
       const slug = result;
@@ -182,11 +176,7 @@ const addPost = (req, res, next) => {
           ],
           (err, results, fields) => {
             if (err) {
-              reject({
-                status: 500,
-                message: "Database Server Error",
-                error: err,
-              });
+              reject(makeError("Database Server Error", err, 500));
               return;
             }
 
@@ -211,31 +201,12 @@ const addPost = (req, res, next) => {
         };
       }
 
-      return res.status(200).send(message);
+      return res.status(200).json(message);
     })
     .catch((err) => {
-      // We might reach this area from a promise that I didn't throw or reject
-      // We're just going to display a generic message if that's the case
-      let error;
-      if (
-            typeof err == typeof {}
-        &&  'status' in err
-        &&  'message' in err
-        &&  'error' in err
-      ){
-        error = err;
-      } else {
-        error = {
-          status: 500,
-          message: "Error adding Post",
-          error: err,
-        };
-      }
-
-      return res.status(error.status).send({
-        message: error.message,
-        error: error.error,
-      });
+      const error = makeErrorResponse(err);
+      sendError(error, res);
+      return;
     });
 };
 
@@ -252,25 +223,13 @@ const editPost = (req, res, next) => {
   const now = new Date();
 
   return new Promise((resolve, reject) => {
-    if (!('id' in req.body)) {
-      return reject({
-        status: 400,
-        message: "Required data not provided",
-        error: "Id not provided",
-      });
-    }
-
-    if (!('title' in req.body) || req.body.title.length <= 0) {
-      return reject({
-        status: 400,
-        message: "Required data not provided",
-        error: "Title not provided",
-      });
+    if (!valsInBody(req.body, ['id', 'title'])){
+      reject(makeError("Required Data Not Provided", "Required Data Not Provided", 400));
+      return;
     }
 
     // Get the id from the body for the next step
     post.id = Number(req.body.id);
-
 
     resolve();
   })
@@ -278,23 +237,11 @@ const editPost = (req, res, next) => {
       return getBlogPostById_db(post.id);
     })
     .then((results) => {
-      if (results.results.length < 1){
-        throw {
-          status: 400,
-          message: "Post Not Found",
-          error: "Request Error",
-        };
-      }
-      
-      if (results.err) {
-        throw {
-          status: 500,
-          message: "Server Error",
-          error: "Database Server Error",
-        };
+      if (results.length < 1){
+        throw makeError("Post Not Found", "Request Error", 400);
       }
 
-      return results.results[0];
+      return results;
     })
     .then((oldPost) => {
       // Check what's actually in the body and set it to that or the old post
@@ -345,11 +292,8 @@ const editPost = (req, res, next) => {
         ],
         (err, results, fields) => {
           if (err) {
-            return reject({
-              status: 500,
-              message: "Database Server Error",
-              error: err,
-            });
+            reject(reject(makeError("Database Server Error", err, 500)));
+            return;
           }
     
           resolve(results);
@@ -363,28 +307,9 @@ const editPost = (req, res, next) => {
       });
     })
     .catch((err) => {
-      // We might reach this area from a promise that I didn't throw or reject
-      // We're just going to display a generic message if that's the case
-      let error;
-      if (
-            typeof err == typeof {}
-        &&  'status' in err
-        &&  'message' in err
-        &&  'error' in err
-      ){
-        error = err;
-      } else {
-        error = {
-          status: 500,
-          message: "Error editing Post",
-          error: err,
-        };
-      }
-
-      return res.status(error.status).send({
-        message: error.message,
-        error: error.error,
-      });
+      const error = makeErrorResponse(err);
+      sendError(error, res);
+      return;
     });
 };
 
@@ -393,19 +318,13 @@ const deletePost = (req, res, next) => {
   let id;
   return new Promise((resolve, reject) => {
     if (!('id' in req.body)) {
-      return reject({
-        status: 400,
-        message: "Required data not provided",
-        error: "Id Required",
-      });
+      reject(makeError("Required data not provided", "Id Required", 400));
+      return;
     }
   
     if (req.body.id < 1){
-      return reject({
-        status: 400,
-        message: "Required data not provided",
-        error: "Invalid Id",
-      });
+      reject(makeError("Required data not provided", "Invalid Id", 400));
+      return;
     }
 
     // We save the id for use in another scope.
@@ -423,11 +342,7 @@ const deletePost = (req, res, next) => {
     (err, results, fields) => {
       
       if (err) {
-        reject({
-          status: 500,
-          message: "Database Server Error",
-          error: err,
-        });
+        reject(makeError("Database Server Error", err, 500));
         return;
       }
       resolve(results);
@@ -449,28 +364,9 @@ const deletePost = (req, res, next) => {
       });
     })
     .catch((err) => {
-      // We might reach this area from a promise that I didn't throw or reject
-      // We're just going to display a generic message if that's the case
-      let error;
-      if (  typeof err == typeof {}
-        &&  'status' in err
-        &&  typeof err.status == typeof 1
-      ){
-        error = err;
-
-      } else {
-        error = {
-          status: 500,
-          message: "Error Deleting Post",
-          error: err,
-        };
-        
-      }
-
-      return res.status(error.status).send({
-        message: error.message,
-        error: error.error,
-      });
+      const error = makeErrorResponse(err);
+      sendError(error, res);
+      return;
     });
 };
 
@@ -479,30 +375,21 @@ const changePublication = (req, res, next) => {
   let id, publish;
   return new Promise((resolve, reject) => {
     // Do we have the proper values in the request?
-    if ( !('id' in req.body)) {
-      return reject({
-        status: 400,
-        message: "Required data not provided",
-        error: "Id Required",
-      });
+    if (!('id' in req.body)) {
+      reject(makeError("Required data not provided", "Id Required", 400));
+      return;
+    }
+  
+    if (req.body.id < 1){
+      reject(makeError("Required data not provided", "Invalid Id", 400));
+      return;
     }
 
     if (  !('publication' in req)
       ||  typeof req.publication !== typeof true
     ) {
-      return reject({
-        status: 500,
-        message: "Internal Server Error",
-        error: "Improper Usage of changePublication",
-      });
-    }
-
-    if (req.body.id < 1){
-      return reject({
-        status: 400,
-        message: "Required data not provided",
-        error: "Invalid Id",
-      });
+      reject(makeError("Internal Server Error", "Improper Usage of changePublication", 500));
+      return;
     }
 
     publish = req.publication;
@@ -519,11 +406,8 @@ const changePublication = (req, res, next) => {
     ],
     (err, results, fields) => {
       if (err) {
-        return reject({
-          status: 500,
-          message: "Database Server Error",
-          error: err,
-        });
+        reject(makeError("Database Server Error", err, 500));
+        return;
       }
 
       resolve(results);
@@ -536,26 +420,9 @@ const changePublication = (req, res, next) => {
       });
     })
     .catch((err) => {
-      let error;
-      if (
-            typeof err == typeof {}
-        &&  'status' in err
-        &&  'message' in err
-        &&  'error' in err
-      ){
-        error = err;
-      } else {
-        error = {
-          status: 500,
-          message: "Error Publishing Post",
-          error: err,
-        };
-      }
-
-      return res.status(error.status).send({
-        message: error.message,
-        error: error.error,
-      });
+      const error = makeErrorResponse(err);
+      sendError(error, res);
+      return;
     });
 };
 

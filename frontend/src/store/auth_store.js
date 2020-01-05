@@ -35,7 +35,6 @@ const actions = {
         return res.json();
       })
       .then((res) => {
-        console.log(res);
         if ('token' in res){
           context.commit("setAuthToken", {
             token: res.token,
@@ -59,7 +58,6 @@ const actions = {
   },
 
   logUserOut(context){
-    console.log("Logging User Out");
     context.commit("removeAuthToken");
     window.localStorage.removeItem("authToken");
   },

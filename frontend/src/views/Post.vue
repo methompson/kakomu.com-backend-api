@@ -2,8 +2,21 @@
   <div>
     <h1>{{ post.title }}</h1>
     <div
+      class="postContent"
       v-html="renderedContent"></div>
     
+    <router-link
+      v-if="loggedIn"
+      :to="'/edit-post/' + this.post.slug">
+      Edit This Post
+    </router-link>
+
+    <a
+      v-if="loggedIn"
+      href="#"
+      @click="deletePost">
+      Delete This Post
+    </a>
   </div>
 </template>
 
@@ -16,6 +29,7 @@ export default {
       slug: '',
       md: null,
       post: {
+        id: -1,
         title: "",
         author: "",
         slug: "",
@@ -33,11 +47,13 @@ export default {
 
       return this.md.render(this.post.content);
     },
+    loggedIn(){
+      return this.$checkAuthData();
+    },
   },
   watch: {
     // $route(to, from){
     $route(){
-      console.log("Changed");
       if ('slug' in this.$route.params){
         this.slug = this.$route.params.slug;
         this.getPost();
@@ -60,9 +76,28 @@ export default {
         slug: this.slug,
       })
         .then((result) => {
-          console.log("Finished Getting Post");
-          console.log(result);
+          if (!('id' in result)){
+            return this.$router.replace({
+              path: '/',
+            });
+          }
           this.post = result;
+          return true;
+        });
+    },
+    deletePost(ev){
+      ev.preventDefault();
+      return this.$store.dispatch("deletePost", {
+        id: this.post.id,
+      })
+        .then((res) => {
+          return this.$router.push({
+            path: '/',
+          });
+        })
+        .catch((err) => {
+          // Handle the error
+          console.log(err);
         });
     },
   },
