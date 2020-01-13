@@ -1,3 +1,5 @@
+// routes for: /api/admin
+
 const express = require('express');
 
 const postAdminController = require('../controllers/blog-admin.js');

@@ -1,29 +1,33 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 
-import * as auth_store from './auth_store';
-import * as message_store from './message_store';
-import * as post_store from './post_store';
+import * as authStore from './auth-store';
+import * as messageStore from './message-store';
+import * as postStore from './post-store';
+import * as userStore from './user-store';
+import defaultState from './default-state';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    restUrl: 'http://localhost:3000',
-    authToken: "",
-    authPayload: {},
-    message: "",
+    ...defaultState
   },
   mutations: {
-    ...auth_store.mutations,
-    ...message_store.mutations,
-    ...post_store.mutations,
+    ...authStore.mutations,
+    ...messageStore.mutations,
+    ...postStore.mutations,
+    ...userStore.mutations,
   },
   actions: {
-    ...auth_store.actions,
-    ...message_store.actions,
-    ...post_store.actions,
+    ...authStore.actions,
+    ...messageStore.actions,
+    ...postStore.actions,
+    ...userStore.actions,
   },
+  // getters: {
+  //   ...messageStore.getters,
+  // },
   modules: {
   },
 });

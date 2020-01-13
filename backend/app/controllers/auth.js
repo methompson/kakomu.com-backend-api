@@ -56,6 +56,43 @@ const authenticateUser = (req, res, next) => {
     });
 };
 
+const checkUserPasswordById = (id, password) => {
+  const query = 'SELECT password FROM users WHERE id = ?';
+  const params = [id];
+  return checkUserPassword(query, params, password);
+};
+
+const checkUserPasswordByEmail = (email, password) => {
+  const query = 'SELECT password FROM users WHERE email = ?';
+  const params = [email];
+  return checkUserPassword(query, params, password);
+};
+
+const checkUserPassword = (query, params, password) => {
+  return new Promise((resolve, reject) => {
+    pool.execute(
+      query,
+      params,
+      (err, results, fields) => {
+        if (err){
+          reject(makeError("Database Server Error", err, 500));
+          return;
+        };
+  
+        if (results.length <= 0){
+          reject(makeError("User Not Found", "User Not Found", 401));
+          return;
+        }
+
+        resolve(results[0]);
+      }
+    );
+  })
+    .then((result) => {
+      return bcrypt.compare(password, result.password);
+    });
+};
+
 const getUserByEmail = (email) => {
   return getUserByParam('email', email);
 };
@@ -145,4 +182,6 @@ module.exports = {
   makeJWTToken,
   getUserByEmail,
   getUserById,
+  checkUserPasswordByEmail,
+  checkUserPasswordById,
 };

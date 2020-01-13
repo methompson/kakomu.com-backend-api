@@ -10,16 +10,27 @@
       <a v-if="loggedIn" href="#" @click="logOut">Log Out</a>
       <router-link v-else to="/login">Log In</router-link>
     </div>
-    <router-view/>
+    <div class="view">
+      <router-view/>
+    </div>
+
+    <Button @click="msg">Test</Button>
+
+    <MessageContainer />
   </div>
 </template>
 
 <script>
+import MessageContainer from './components/MessageContainer.vue';
+
 export default {
+  components: {
+    MessageContainer,
+  },
   mounted(){
     const token = window.localStorage.getItem('authToken');
     if (token){
-      this.$store.dispatch("insertAuthToken", {
+      this.$store.dispatch("insertAuthTokenFromStore", {
         token,
       })
         .then(() => {
@@ -43,6 +54,20 @@ export default {
     },
   },
   methods: {
+    msg(){
+      let msg;
+
+      if (this.$store.state.message === "Test Message"){
+        msg = "test";
+      } else {
+        msg = "Test Message";
+      }
+
+      console.log(msg);
+      this.$store.dispatch("addMessage", {
+        message: msg,
+      });
+    },
     logOut(ev){
       ev.preventDefault();
       this.$store.dispatch("logUserOut")
@@ -65,6 +90,16 @@ export default {
 </script>
 
 <style lang="scss">
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
+.view {
+  margin: 1em;
+}
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

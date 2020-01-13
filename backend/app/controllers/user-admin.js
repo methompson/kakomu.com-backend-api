@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
 const pool = require('../controllers/db.js');
-const {getUserById, makeJWTToken} = require('./auth.js');
+const {getUserById, makeJWTToken, checkUserPasswordById} = require('./auth.js');
 const {makeError, makeErrorResponse, sendError, valsInBody} = require('./utilities.js');
 
 function getAccountInfoList(){
@@ -11,18 +11,21 @@ function getAccountInfoList(){
       dbName: 'firstName',
       unique: false,
       notNull: true,
+      emptyOk: true,
       type: "string",
     },
     lastName:{
       dbName: 'lastName',
       unique: false,
       notNull: true,
+      emptyOk: true,
       type: "string",
     },
     email:{
       dbName: 'email',
       unique: true,
       notNull: true,
+      emptyOk: false,
       type: "string",
     },
   };
@@ -36,10 +39,16 @@ function makeUpdateList(req){
   Object.keys(accountInfo).forEach((key) => {
     if (key in req.body){
       const i = accountInfo[key];
+
+      // If the type is string,
+      // We check if notNull is false or true and the string isn't null
+      // We check if the string can be empty and it's not or emptyOk is false
       if ( i.type === "string"
-        && i.notNull
-        && req.body[key]
-        && req.body[key].length > 0
+        && ( !i.notNull
+          || (i.notNull && req.body[key] !== null))
+        && ( i.emptyOk
+          || (!i.emptyOk && req.body[key].length > 0)
+        )
       ){
         updateItems.push(key);
       }
@@ -54,14 +63,19 @@ function makeUpdateList(req){
 // * Last Name
 // * Email Address
 const updateUser = (req, res, next) => {
+
+  // TODO Update the function to get the user first, then check the 
+  // user's password against the db item.
+
   let updateItems;
 
   // Get the Promise chain started. We can use the catch block to send out
   // errors and reduce the amount of code to write.
   return new Promise((resolve, reject) => {
     // The user's id must be sent with the request
-    if (!('id' in req.body)){
-      reject(makeError("No User Id Provided", "No User Id Provided", 400));
+    // if (!('id' in req.body)){
+    if( !valsInBody(req.body, ['id', 'password']) ){
+      reject(makeError("Required Parameters Not Provided", "Required Parameters Not Provided", 400));
       return;
     }
 
@@ -82,6 +96,16 @@ const updateUser = (req, res, next) => {
     resolve();
   })
     .then(() => {
+      // After checking the parameters passed in the body, we check
+      // the user's password.
+      return checkUserPasswordById(req.body.id, req.body.password);
+    })
+    .then((result) => {
+      // If the passwords don't match, we toss an error
+      if (result !== true){
+        throw makeError("Invalid Credentials", "Invalid Credentials", 401);
+      }
+
       // We are free to update the database now. We will build an SQL query.
       let query = `
         UPDATE users
@@ -115,19 +139,22 @@ const updateUser = (req, res, next) => {
               return;
             }
 
-            resolve(results);
+            if (results.affectedRows < 1){
+              throw makeError("User Not Updated", "User Not Updated", 500);
+            }
+
+            resolve();
           });
       });
     })
-    .then((result) => {
-      if (result.affectedRows < 1){
-        throw makeError("User Not Updated", "User Not Updated", 500);
-      }
-
+    .then(() => {
       return getUserById(req._user.userId);
     })
     .then((user) => {
-      const token = makeJWTToken(user, req._user.exp);
+      // We make an expiration time thay is similar to the current expiration time
+      // for the new JWT we're making
+      const expires = req._user.exp - Math.ceil(Date.now() / 1000);
+      const token = makeJWTToken(user, expires);
       
       res.status(200).json({
         message: "User Successfully Updated",
@@ -150,10 +177,9 @@ const updateUser = (req, res, next) => {
 // Step 5, update the database password
 const updateUserPassword = (req, res, next) => {
   let user;
-  console.log(req._user);
 
   return new Promise((resolve, reject) => {
-    const reqVals = ['id', 'oldPassword', 'newPassword'];
+    const reqVals = ['id', 'password', 'newPassword'];
     // valsInBody checks the object for the specified values and returns a boolean
     // indicating if the values exist.
     if ( !valsInBody(req.body, reqVals) ){
@@ -164,6 +190,14 @@ const updateUserPassword = (req, res, next) => {
     resolve();
   })
     .then(() => {
+      // We need to compare the user's old password to the current password
+      return checkUserPasswordById(req.body.id, req.body.password);
+    })
+    .then((result) => {
+      if (result !== true){
+        throw makeError("Invalid Credentials", "Invalid Credentials", 401);
+      }
+
       if (req._user.userId !== req.body.id && req._user.userType !== 'admin'){
         throw makeError("Password not updated", "Invalid User", 401);
       }
@@ -172,15 +206,7 @@ const updateUserPassword = (req, res, next) => {
     })
     .then((result) => {
       // If we make it here, the user has been found in the database.
-      // We need to compare the user's old password to the current password
       user = result;
-      return bcrypt.compare(req.body.oldPassword, user.password);
-    })
-    .then((result) => {
-      // If the passwords don't match, we throw another error
-      if (result !== true){
-        throw makeError("Password not updated", "Invalid Credentials", 401);
-      }
 
       // We finally arrive at a point where we can update the password
       // We'll hash the password with bcrypt, then run the SQL query.
