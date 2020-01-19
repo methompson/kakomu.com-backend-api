@@ -1,10 +1,17 @@
 <template>
-  <div
-    class="messagePosition hidden"
-    id="messagePosition">
 
-    <div class="messageContainer">
-      {{ currentMessage }}
+  <div
+    class="messagesContainer"
+    id="messagesContainer" >
+
+    <div
+      v-for="(message) in displayedMessages"
+      :key="'message_' + message.id">
+
+      <Message
+        :message="message"
+        @dismissMessage="dismissMessage" />
+
     </div>
 
   </div>
@@ -13,62 +20,66 @@
 <script>
 import { mapState } from 'vuex';
 
+import Message from "./Message.vue";
+
 export default {
+  components: {
+    Message,
+  },
   mounted(){
-    this.positionEl = document.getElementById("messagePosition");
+    this.findAdditions();
   },
   computed: {
-    ...mapState(['message']),
+    ...mapState(['messages']),
     elHeight(){
       return this.positionEl.offsetHeight;
     },
+    displayedMessageKeys(){
+      const keys = {};
+
+      this.displayedMessages.forEach((msg) => {
+        keys[msg.id] = msg;
+      });
+
+      return keys;
+    },
   },
   watch: {
-    message(newVal, oldVal){
-      console.log("Watching", newVal, oldVal);
-      if (newVal === ""){
-        this.hideMessage();
-      } else if (newVal !== "" && oldVal === ""){
-        console.log("Empty");
-        this.showMessage(newVal);
-      } else {
-      }
+    messages(newVal, oldVal){
+      this.findAdditions();
     },
   },
   data(){
     return {
-      currentMessage: "",
-      positionEl: null,
+      displayedMessages: [],
     };
   },
   methods: {
-    showMessage(newVal){
-      // Remove the transition-duration, set the top to the current height, inverted
-      // then remove hidden. We set a timeout to make sure that all CSS is set, then
-      // we add animation and set top back to 0. This makes the message slide out.
-      this.positionEl.classList.remove("animated");
-      this.positionEl.classList.add("hidden");
+    findAdditions(){
+      const additions = {};
+      const subtractions = {};
 
-      this.currentMessage = newVal;
-
-      this.$nextTick(() => {
-        this.positionEl.style.top = `${(-1 * this.elHeight)}px`;
-        setTimeout(() => {
-          this.positionEl.classList.remove("hidden");
-          this.positionEl.classList.add("animated");
-          this.positionEl.style.top = 0;
-        }, 5);
+      Object.keys(this.messages).forEach((key) => {
+        if ( !(key in this.displayedMessageKeys) ){
+          this.addMessage(key);
+        }
       });
     },
-    hideMessage(){
-      this.positionEl.style.top = `${(-1 * this.elHeight)}px`;
-
-      // Current text transition is set to 0.5 seconds, or 500 ms. I round to 
-      // 550ms to make sure it transition fine.
-      setTimeout(() => {
-        this.currentMessage = "";
-        this.positionEl.classList.add("hidden");
-      }, 550);
+    addMessage(id){
+      this.displayedMessages.push({
+        id,
+        message: this.messages[id],
+      });
+    },
+    dismissMessage(payload){
+      const messages = [];
+      for (let x = 0, len = this.displayedMessages.length; x < len; ++x){
+        if (payload.id !== this.displayedMessages[x].id){
+          messages.push(this.displayedMessages[x]);
+        }
+      }
+      
+      this.displayedMessages = messages;
     },
   },
 };
@@ -76,30 +87,14 @@ export default {
 
 <style lang="scss" scoped>
 
-  .messagePosition {
-    position: fixed;
-    top: 0;
-    width: 100%;
-    text-align: center;
-    padding-top: 1em;
-  }
-
-  .animated {
-    transition-duration: 0.5s;
-  }
-
-  .hidden {
-    opacity: 0;
-  }
-
-  .messageContainer {
-    background-color: #9900d0;
-    color: white;
-    border-radius: 0.3em;
-    font-weight: 700;
-    font-size: 1.3em;
-    display: inline-block;
-    padding: 0.5em;
-  }
+.messagesContainer {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  text-align: center;
+  background-color: transparent;
+  pointer-events: none;
+  transition-duration: 350ms;
+}
 
 </style>

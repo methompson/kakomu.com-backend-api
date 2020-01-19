@@ -1,42 +1,75 @@
+import uuidv4 from "uuid/v4";
+
 const mutations = {
-  setMessage(state, data){
-    console.log("Changing Message");
-    console.log(data.message);
-    state.message = data.message;
+  addMessage(state, data){
+    state.messages = {
+      ...state.messages,
+    };
+    state.messages[data.id] = data.message;
   },
 
-  setTimeoutHandle(state, data){
-    state.messageTimeoutHandle = data.messageTimeoutHandle;
+  removeMessage(state, data){
+    const messages = {
+      ...state.messages,
+    };
+
+    delete messages[data.id];
+
+    state.messages = messages;
   },
 };
 
 const actions = {
   addMessage(context, payload){
-    if (context.state.messageTimeoutHandle !== null){
-      clearTimeout(context.state.messageTimeoutHandle);
-    }
+    return new Promise((resolve, reject) => {
+      if ( !("message" in payload) ){
+        reject();
+        return;
+      }
 
-    context.commit("setMessage", {
-      message: payload.message,
-    });
+      resolve();
+    })
+      .then(() => {
+        const id = uuidv4();
+        
+        let type = "notice";
+        let timeout = 10000;
+        if ("timeout" in payload){
+          timeout = payload.timeout;
+        }
 
-    const handle = setTimeout(() => {
-      context.dispatch("removeMessage");
-    }, 2000);
+        if ("type" in payload){
+          type = payload.type;
+        }
 
-    context.commit("setTimeoutHandle", {
-      messageTimeoutHandle: handle,
-    });
+        const message = {
+          message: payload.message,
+          id,
+          timeout,
+          type,
+        };
+
+        context.commit("addMessage", {
+          message: payload.message,
+          id,
+        });
+      });
   },
 
-  removeMessage(context){
-    context.commit("setMessage", {
-      message: "",
-    });
+  removeMessage(context, payload){
+    return new Promise((resolve, reject) => {
+      if ( !("id" in payload) ){
+        reject();
+        return;
+      }
 
-    context.commit("setTimeoutHandle", {
-      messageTimeoutHandle: null,
-    });
+      resolve();
+    })
+      .then(() => {
+        context.commit("removeMessage", {
+          id: payload.id,
+        });
+      });
   },
 };
 

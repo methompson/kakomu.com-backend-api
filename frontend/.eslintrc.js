@@ -15,6 +15,7 @@ module.exports = {
     'no-unused-vars': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-empty': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'padded-blocks': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'no-plusplus': 'off',
     'import/prefer-default-export': 'off',
     'no-multi-spaces': 'off',
     'prefer-destructuring': 'off',

@@ -48,10 +48,10 @@ export default {
         .then((result) => {
 
           if (!result.success){
-            this.errMsg = result.message;
-            setTimeout(() => {
-              this.errMsg = "";
-            }, 10000);
+            this.$store.dispatch("addMessage", {
+              message: result.message,
+              type: "error",
+            });
             return;
           }
 
@@ -59,8 +59,6 @@ export default {
             path: "/",
           });
           const state = this.$store.state;
-
-          console.log(state.authPayload);
         });
     },
   },

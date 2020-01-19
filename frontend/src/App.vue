@@ -55,15 +55,8 @@ export default {
   },
   methods: {
     msg(){
-      let msg;
+      const msg = "Test Message";
 
-      if (this.$store.state.message === "Test Message"){
-        msg = "test";
-      } else {
-        msg = "Test Message";
-      }
-
-      console.log(msg);
       this.$store.dispatch("addMessage", {
         message: msg,
       });
