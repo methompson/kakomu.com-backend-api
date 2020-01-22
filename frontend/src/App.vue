@@ -1,31 +1,26 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link> |
-      <span v-if="loggedIn">
-        <router-link to="/account">Account</router-link> |
-        <router-link to="/add-post">Add Post</router-link> |
-      </span>
-      <a v-if="loggedIn" href="#" @click="logOut">Log Out</a>
-      <router-link v-else to="/login">Log In</router-link>
-    </div>
+    <Header />
     <div class="view">
       <router-view/>
     </div>
 
-    <Button @click="msg">Test</Button>
+    <Footer />
 
     <MessageContainer />
   </div>
 </template>
 
 <script>
+import Header from './components/Header.vue';
+import Footer from './components/Footer.vue';
 import MessageContainer from './components/MessageContainer.vue';
 
 export default {
   components: {
     MessageContainer,
+    Header,
+    Footer,
   },
   mounted(){
     const token = window.localStorage.getItem('authToken');
@@ -42,9 +37,6 @@ export default {
     authPayload(){
       return this.$store.state.authPayload;
     },
-    loggedIn(){
-      return this.$checkAuthData();
-    },
   },
   watch: {
     authPayload(){
@@ -53,64 +45,21 @@ export default {
         });
     },
   },
-  methods: {
-    msg(){
-      const msg = "Test Message";
-
-      this.$store.dispatch("addMessage", {
-        message: msg,
-      });
-    },
-    logOut(ev){
-      ev.preventDefault();
-      this.$store.dispatch("logUserOut")
-        .then(() => {
-          if (this.$router.currentRoute.path !== "/"){
-            // Redirect the user to the home page.
-            return this.$router.replace({
-              path: "/",
-            });
-          }
-
-          return true;
-        })
-        .catch((err) => {
-          console.log("Error Logging Out", err);
-        });
-    },
-  },
 };
 </script>
 
-<style lang="scss">
-
-body {
-  padding: 0;
-  margin: 0;
-}
+<style lang="scss" scoped>
 
 .view {
   margin: 1em;
+  flex-grow: 100;
 }
 
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
-#nav {
-  text-align: center;
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
-    }
-  }
-}
 </style>

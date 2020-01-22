@@ -8,8 +8,6 @@ const mutations = {
 
     state.authToken = data.token;
     state.authPayload = jwtDecode(data.token);
-
-    console.log(jwtDecode(data.token));
   },
 
   removeAuthToken(state){
@@ -55,7 +53,10 @@ const actions = {
         };
       })
       .catch((err) => {
-        console.log(err);
+        context.dispatch("addMessage", {
+          message: err,
+          type: "error",
+        });
       });
   },
 

@@ -43,7 +43,6 @@
         Publish
       </button>
     </div>
-    
   </div>
 </template>
 

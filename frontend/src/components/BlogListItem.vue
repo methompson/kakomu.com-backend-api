@@ -13,7 +13,7 @@
     </span>
   </h1>
   <div
-    v-html="renderedContent">
+    v-html="snippet">
   </div>
 </div>
 
@@ -57,6 +57,26 @@ export default {
       }
 
       return this.md.render(this.post.content);
+    },
+    snippet(){
+      if (!this.md){
+        return "";
+      }
+
+      // find the first paragraph mark
+      const newLine = /\n/g;
+      const index = this.post.content.search(newLine);
+
+      // If there's no new lines, the snippet is the entire post
+      // otherwise, it's up to the first paragraph.
+      let snippet;
+      if (index < 0){
+        snippet = this.post.content;
+      } else {
+        snippet = this.post.content.substring(0, index);
+      }
+
+      return this.md.render(snippet);
     },
   },
 };

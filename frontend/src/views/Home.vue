@@ -1,11 +1,6 @@
 <template>
 <div>
-  <h1>
-    Blog Posts.
-  </h1>
-
   <BlogList />
-
 </div>
 </template>
 
