@@ -1,22 +1,24 @@
 <template>
   <div>
-    <h1>{{ post.title }}</h1>
+    <div class="title">{{ post.title }}</div>
+    <div class="publishDateTime">
+      {{ publishDateString }}
+    </div>
     <div
-      class="postContent"
+      class="postContent mdOutput"
       v-html="renderedContent"></div>
 
-    <router-link
-      v-if="loggedIn"
-      :to="'/edit-post/' + this.post.slug">
-      Edit This Post
-    </router-link>
+      <router-link
+        v-if="loggedIn"
+        :to="'/edit-post/' + this.post.slug">
+        Edit This Post
+      </router-link>
 
-    <a
-      v-if="loggedIn"
-      href="#"
-      @click="deletePost">
-      Delete This Post
-    </a>
+      <!-- <a v-if="loggedIn"
+        href="#"
+        @click="deletePost">
+        Delete This Post
+      </a> -->
   </div>
 </template>
 
@@ -46,6 +48,14 @@ export default {
       }
 
       return this.md.render(this.post.content);
+    },
+    publishDateString(){
+      if (this.post.published === false){
+        return "No Published";
+      }
+      const d = new Date(this.post.datePublished);
+
+      return `Published On ${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
     },
     loggedIn(){
       return this.$checkAuthData();
@@ -91,28 +101,28 @@ export default {
           });
         });
     },
-    deletePost(ev){
-      ev.preventDefault();
-      return this.$store.dispatch("deletePost", {
-        id: this.post.id,
-      })
-        .then((res) => {
-          return this.$router.push({
-            path: '/',
-          });
-        })
-        .catch((err) => {
-          // Handle the error
-          this.$store.dispatch("addMessage", {
-            message: err,
-            type: "error",
-          });
-        });
-    },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.title {
+  color: #ff3e3e;
+  font-weight: 700;
+  font-size: 1.75em;
+}
 
+.buttonHolder {
+  display: flex;
+  justify-content: space-between;
+}
+
+a {
+  color: #ff3e3e;
+}
+
+.publishDateTime{
+  font-size: 0.8em;
+  color: #999;
+}
 </style>

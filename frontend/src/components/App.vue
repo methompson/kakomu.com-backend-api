@@ -1,9 +1,11 @@
 <template>
   <div id="app">
     <Header />
-    <div class="view">
+    <b-container
+      class="view"
+      fluid="md">
       <router-view/>
-    </div>
+    </b-container>
 
     <Footer />
 
@@ -52,6 +54,7 @@ export default {
 
 .view {
   flex-grow: 100;
+  margin-bottom: 1em;
 }
 
 #app {

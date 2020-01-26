@@ -1,5 +1,5 @@
 // This generates a standardized error message that I can use in responses to the
-// browser. Message should be a simple explanation of what happened. E.g. "Post 
+// browser. Message should be a simple explanation of what happened. E.g. "Post
 // Not Created". Error should be why. E.g. "Invalid Credentials". httpStatus
 // is an error status code.
 function makeError(message, error, httpStatus){
@@ -38,14 +38,14 @@ function makeErrorResponse(err){
 
 function sendError(err, res){
   const error = makeErrorResponse(err);
-  
+
   return res.status(error.status).json({
     error: error.error,
     message: error.message,
   });
 }
 
-// This function takes an array of values and checks for their existence in 
+// This function takes an array of values and checks for their existence in
 // an object.
 function valsInBody(obj, values){
   // Let's do some type checking

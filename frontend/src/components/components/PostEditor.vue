@@ -42,6 +42,11 @@
         @click="publishDraft">
         Publish
       </button>
+
+      <button
+        @click="deletePost">
+        Delete This Post
+      </button>
     </div>
   </div>
 </template>
@@ -133,6 +138,23 @@ export default {
       const post = this.assemblePostData();
       post.published = true;
       this.$emit('transmitPost', post);
+    },
+    deletePost(){
+      // return this.$store.dispatch("deletePost", {
+      //   id: this.post.id,
+      // })
+      //   .then((res) => {
+      //     return this.$router.push({
+      //       path: '/',
+      //     });
+      //   })
+      //   .catch((err) => {
+      //     // Handle the error
+      //     this.$store.dispatch("addMessage", {
+      //       message: err,
+      //       type: "error",
+      //     });
+      //   });
     },
   },
 };

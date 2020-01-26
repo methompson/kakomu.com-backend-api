@@ -10,7 +10,9 @@ const actions = {
       page = payload.page;
     }
 
-    return fetch(`http://localhost:3000/api/blog/page/${page}`)
+    const url = `${context.state.restUrl}/api/blog/page/${page}`;
+
+    return fetch(url)
       .then((res) => {
         return res.json();
       })

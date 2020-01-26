@@ -14,6 +14,11 @@ const routes = [
     component: Home,
   },
   {
+    path: '/page/:page',
+    name: 'postPage',
+    component: Home,
+  },
+  {
     path: '/post/:slug',
     name: 'post',
     component: Post,

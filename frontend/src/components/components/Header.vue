@@ -4,7 +4,7 @@
       <b-navbar-brand to="/">
         <img
           src="@/assets/images/K-logo.png"
-          class="d-inline-block align-bottom"
+          class="d-inline-block align-center header-img"
           alt="Kakomu">
         Kakomu's Blog
       </b-navbar-brand>
@@ -60,19 +60,8 @@ export default {
 
 <style lang="scss" scoped>
 
-.logoHolder{
-  display: flex;
-  align-items: flex-end;
-
-  a {
-    text-decoration: none;
-  }
-}
-
-.subtitle {
-  color: #ff3e3e;
-  font-size: 0.75em;
-  padding-left: 0.5em;
+.header-img {
+  max-height: 2em;
 }
 
 </style>

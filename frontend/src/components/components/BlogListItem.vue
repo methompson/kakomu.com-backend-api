@@ -1,18 +1,16 @@
 <template>
-<div>
-  <h1>
+<div class="blogListItem">
+  <div class="title">
       <router-link
-        v-if="!defaultPost"
         :to="'/post/'+this.post.slug">
-
         {{ post.title }}
       </router-link>
-    <span
-      v-else>
-      {{ post.title }}
-    </span>
-  </h1>
+  </div>
+  <div class="publishDateTime">
+    {{ publishDateString }}
+  </div>
   <div
+    class="mdOutput"
     v-html="snippet">
   </div>
 </div>
@@ -34,6 +32,8 @@ export default {
           title: "Default Title",
           content: "No Content Here",
           slug: "default_title",
+          datePublished: "2019-01-01T00:00:00.000Z",
+          published: false,
           default: true,
         };
       },
@@ -45,18 +45,20 @@ export default {
     };
   },
   computed: {
-    defaultPost(){
-      if ('default' in this.post && this.post.default === true){
-        return true;
-      }
-      return false;
-    },
     renderedContent(){
       if (!this.md){
         return "";
       }
 
       return this.md.render(this.post.content);
+    },
+    publishDateString(){
+      if (this.post.published === false){
+        return "No Published";
+      }
+      const d = new Date(this.post.datePublished);
+
+      return `Published On ${d.getMonth() + 1}/${d.getDate()}/${d.getFullYear()}`;
     },
     snippet(){
       if (!this.md){
@@ -83,5 +85,28 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.title {
+  a {
+    border-bottom: 1px solid transparent;
+    text-decoration: none;
+    color: #ff3e3e;
+    transition-duration: 200ms;
+    font-weight: 700;
+    font-size: 1.75em;
+  }
 
+  a:hover {
+    border-bottom: 1px solid #110148;
+  }
+}
+
+.publishDateTime{
+  font-size: 0.8em;
+  color: #999;
+}
+
+.blogListItem {
+  border-bottom: 1px solid #DDD;
+  margin-bottom: 1em;
+}
 </style>

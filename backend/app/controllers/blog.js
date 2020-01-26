@@ -1,4 +1,5 @@
 const pool = require('../controllers/db.js');
+const {makeError, makeErrorResponse, sendError, valsInBody} = require('./utilities.js');
 
 const getBlogPostById_db = (id) => {
   return new Promise((resolve, reject) => {
@@ -162,6 +163,10 @@ const getBlogPostBySlug = (req, res, next) => {
 const getBlogPostsByPage = (req, res, next) => {
   let pageNum;
   const limit = 10;
+  const response = {
+    posts: [],
+    meta: {},
+  };
   return new Promise((resolve, reject) => {
     if ('pageNum' in req.params){
       pageNum = Number(req.params.pageNum);
@@ -207,13 +212,22 @@ const getBlogPostsByPage = (req, res, next) => {
     });
   })
     .then((results) => {
-      res.status(200).send(results);
+      response.posts = results;
+      return getTotalPublishedPosts();
+    })
+    .then((results) => {
+      response.meta.totalPosts = results;
+      res.status(200).send(response);
     })
     .catch((err) => {
       // We might reach this area from a promise that I didn't throw or reject
       // We're just going to display a generic message if that's the case
       let error;
-      if (typeof err == typeof {}){
+      if (typeof err === typeof {}
+        && 'message' in err
+        && 'error' in err
+        && 'status' in err
+      ){
         error = err;
       } else {
         error = {
@@ -299,8 +313,10 @@ const getBlogPostsByTag = (req, res, next) => {
     });
 };
 
-const getTotalPosts = () => {
-  return new Proimse((resolve, reject) => {
+const getTotalPosts = () => {};
+
+const getTotalPublishedPosts = () => {
+  return new Promise((resolve, reject) => {
     pool.execute(`
       SELECT COUNT(*)
       FROM posts
@@ -311,8 +327,7 @@ const getTotalPosts = () => {
         reject(err);
         return;
       }
-
-      resolve(results);
+      resolve(results[0]["COUNT(*)"]);
     });
   });
 };
