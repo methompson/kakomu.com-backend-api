@@ -1,0 +1,23 @@
+@import 'node_modules/bootstrap/scss/bootstrap';
+@import 'node_modules/bootstrap-vue/src/index.scss';
+
+$theme-colors: (
+  "kak-blue": #110148
+);
+
+nav.navbar-dark.bg-kak-blue {
+
+  .nav-item .nav-link,
+  .navbar-brand {
+    color: #ff3e3e;
+    font-weight: 500;
+    transition-duration: 200ms;
+  }
+
+  .nav-item .nav-link:hover,
+  .navbar-brand:hover {
+    color: darken( #ff3e3e, 20%);
+  }
+}
+
+@import "bootstrap";

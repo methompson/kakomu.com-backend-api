@@ -49,7 +49,10 @@ export default {
         })
         .catch((err) => {
           // Do something with the error
-          console.log(err);
+          this.$store.dispatch("addMessage", {
+            message: err,
+            type: "error",
+          });
         });
     },
     deletePost(id){
@@ -60,8 +63,10 @@ export default {
           return this.getFullPostList();
         })
         .catch((err) => {
-          // Handle the error
-          console.log(err);
+          this.$store.dispatch("addMessage", {
+            message: err,
+            type: "error",
+          });
         });
     },
     editPost(slug){

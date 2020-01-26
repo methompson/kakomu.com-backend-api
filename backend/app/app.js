@@ -12,11 +12,10 @@ process.env.TZ = "America/Chicago";
 // Creating the express app
 const app = express();
 
+app.set('trust proxy', true);
+
 // global.jwtSecret = uuidv4();
 global.jwtSecret = "secret";
-
-// Setting up the body parser for getting form data, etc.
-// app.use( bodyParser.urlencoded({ extended: false }) );
 
 // Setting up the body parser for getting JSON data
 app.use( bodyParser.json() );
@@ -25,6 +24,11 @@ app.use( bodyParser.json() );
 const blogRoutes = require('./routes/blog');
 const adminRoutes = require('./routes/blog-admin');
 const authRoutes = require('./routes/auth');
+
+// app.use('/:path', (req, res, next) => {
+//   console.log(req.ip);
+//   next();
+// });
 
 app.use('/api/blog', cors(), blogRoutes);
 app.use('/api/admin', cors(), adminRoutes);

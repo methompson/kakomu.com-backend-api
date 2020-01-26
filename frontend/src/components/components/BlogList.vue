@@ -21,10 +21,7 @@ export default {
     };
   },
   mounted(){
-    fetch("http://localhost:3000/api/blog")
-      .then((res) => {
-        return res.json();
-      })
+    this.$store.dispatch('getPagePostList')
       .then((res) => {
         this.blogPosts = res;
       });

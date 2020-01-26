@@ -3,7 +3,7 @@ import jwtDecode from 'jwt-decode';
 const mutations = {
   setAuthToken(state, data){
     if (!('token' in data)){
-      return; 
+      return;
     }
 
     state.authToken = data.token;

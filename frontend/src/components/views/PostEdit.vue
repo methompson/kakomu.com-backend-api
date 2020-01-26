@@ -54,7 +54,7 @@ export default {
         ...post,
         id: this.post.id,
       };
-      
+
       return this.$store.dispatch('transmitEditPost', {
         post: updatedPost,
       })

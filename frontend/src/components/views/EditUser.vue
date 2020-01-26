@@ -61,6 +61,12 @@ export default {
         .then((res) => {
           console.log(res);
           // Do something with result
+        })
+        .catch((err) => {
+          this.$store.dispatch("addMessage", {
+            message: err,
+            type: "error",
+          });
         });
     },
     updateUserPassword(){
@@ -79,7 +85,13 @@ export default {
       this.$store.dispatch("updateUserPassword", {
         password: this.currentPass,
         newPassword: this.newPass,
-      });
+      })
+        .catch((err) => {
+          this.$store.dispatch("addMessage", {
+            message: err,
+            type: "error",
+          });
+        });
     },
   },
 };

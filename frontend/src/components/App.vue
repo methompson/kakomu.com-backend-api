@@ -51,7 +51,6 @@ export default {
 <style lang="scss" scoped>
 
 .view {
-  margin: 1em;
   flex-grow: 100;
 }
 

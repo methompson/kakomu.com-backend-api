@@ -1,12 +1,12 @@
 const pool = require('../controllers/db.js');
 
 const getBlogPostById_db = (id) => {
-  return new Promise((resolve, reject) => {    
+  return new Promise((resolve, reject) => {
 
     if (  typeof id !== typeof 1
       ||  id < 0
     ){
-      
+
       reject({
         status: 401,
         message: "Error Getting Post",

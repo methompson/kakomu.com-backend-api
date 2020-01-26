@@ -142,7 +142,7 @@ const addPost = (req, res, next) => {
     // Get a unique slug by looking at the database
     // and generating one based on other blog posts
     return getUniqueSlug(post.title);
-  })  
+  })
     .then((result) => {
       const slug = result;
       post.slug = slug;
@@ -295,7 +295,7 @@ const editPost = (req, res, next) => {
             reject(reject(makeError("Database Server Error", err, 500)));
             return;
           }
-    
+
           resolve(results);
         });
       });
@@ -321,7 +321,7 @@ const deletePost = (req, res, next) => {
       reject(makeError("Required data not provided", "Id Required", 400));
       return;
     }
-  
+
     if (req.body.id < 1){
       reject(makeError("Required data not provided", "Invalid Id", 400));
       return;
@@ -340,7 +340,7 @@ const deletePost = (req, res, next) => {
       req.body.id,
     ],
     (err, results, fields) => {
-      
+
       if (err) {
         reject(makeError("Database Server Error", err, 500));
         return;
@@ -379,7 +379,7 @@ const changePublication = (req, res, next) => {
       reject(makeError("Required data not provided", "Id Required", 400));
       return;
     }
-  
+
     if (req.body.id < 1){
       reject(makeError("Required data not provided", "Invalid Id", 400));
       return;

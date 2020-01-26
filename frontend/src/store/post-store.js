@@ -1,6 +1,25 @@
 const mutations = {};
 
 const actions = {
+  getPagePostList(context, payload){
+    let page = 1;
+    let undef;
+    if ( payload !== undef
+      && 'page' in payload
+    ){
+      page = payload.page;
+    }
+
+    return fetch(`http://localhost:3000/api/blog/page/${page}`)
+      .then((res) => {
+        return res.json();
+      })
+      .then((res) => {
+        // this.blogPosts = res;
+        return res;
+      });
+  },
+
   getPostBySlug(context, payload){
     if (!('slug' in payload)){
       return {};

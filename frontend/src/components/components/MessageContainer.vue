@@ -68,8 +68,14 @@ export default {
     addMessage(id){
       this.displayedMessages.push({
         id,
-        message: this.messages[id],
+        message: this.messages[id].message,
+        timeout: this.messages[id].timeout,
+        type: this.messages[id].type,
       });
+
+      console.log(this.messages[id]);
+
+      console.log(this.displayedMessages);
     },
     dismissMessage(payload){
       const messages = [];
@@ -78,7 +84,7 @@ export default {
           messages.push(this.displayedMessages[x]);
         }
       }
-      
+
       this.displayedMessages = messages;
     },
   },

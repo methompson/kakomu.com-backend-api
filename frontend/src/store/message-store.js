@@ -31,7 +31,14 @@ const actions = {
     })
       .then(() => {
         const id = uuidv4();
-        
+
+        let message;
+        if (typeof payload.message === typeof "string"){
+          message = payload.message;
+        } else if (payload.message instanceof Error) {
+          message = payload.message.message;
+        }
+
         let type = "notice";
         let timeout = 10000;
         if ("timeout" in payload){
@@ -42,15 +49,12 @@ const actions = {
           type = payload.type;
         }
 
-        const message = {
-          message: payload.message,
-          id,
-          timeout,
-          type,
-        };
-
         context.commit("addMessage", {
-          message: payload.message,
+          message: {
+            message,
+            type,
+            timeout,
+          },
           id,
         });
       });

@@ -5,7 +5,7 @@
       <div>
         Email
         <input
-          type="text" 
+          type="text"
           v-model="email"
           name="email" />
       </div>
@@ -13,7 +13,7 @@
       <div>
         Password
         <input
-          type="password" 
+          type="password"
           v-model="password"
           name="password" />
       </div>
@@ -59,6 +59,12 @@ export default {
             path: "/",
           });
           const state = this.$store.state;
+        })
+        .catch((err) => {
+          this.$store.dispatch("addMessage", {
+            message: err,
+            type: "error",
+          });
         });
     },
   },

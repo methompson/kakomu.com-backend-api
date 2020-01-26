@@ -1,7 +1,7 @@
 <template>
   <div
     :id="messageId"
-    class="messageBox beforeAppear"
+    :class="messageClass"
     @click="dismiss">
     {{ message.message }}
   </div>
@@ -25,6 +25,20 @@ export default {
   computed: {
     messageId(){
       return "message_" + this.message.id;
+    },
+    messageType(){
+      if (this.message.type.toLowerCase() === 'error'){
+        return 'error';
+      }
+
+      if (this.message.type.toLowerCase() === 'success'){
+        return 'success';
+      }
+
+      return 'notice';
+    },
+    messageClass(){
+      return `messageBox beforeAppear ${this.messageType}`;
     },
   },
   mounted(){
@@ -68,7 +82,6 @@ export default {
 <style lang="scss" scoped>
 .messageBox {
   transition-duration: 350ms;
-  background-color: purple;
   color: white;
   display: inline-block;
   padding: 0.5em;
@@ -82,6 +95,19 @@ export default {
 .beforeAppear {
   margin-right: 3em;
   opacity: 0;
+}
+
+.error {
+  background-color: #ff3e3e;
+}
+
+.success {
+  background-color: #00ff7c;
+  color: black;
+}
+
+.notice {
+  background-color: purple;
 }
 
 .dismiss {

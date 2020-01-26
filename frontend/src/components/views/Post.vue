@@ -4,7 +4,7 @@
     <div
       class="postContent"
       v-html="renderedContent"></div>
-    
+
     <router-link
       v-if="loggedIn"
       :to="'/edit-post/' + this.post.slug">
@@ -64,7 +64,7 @@ export default {
     // We get the slug from the route parameter
     // TODO Reroute to a 404 error if the slug wasn't included
     this.md = new MarkdownIt();
-    
+
     if ('slug' in this.$route.params){
       this.slug = this.$route.params.slug;
       this.getPost();
@@ -83,6 +83,12 @@ export default {
           }
           this.post = result;
           return true;
+        })
+        .catch((err) => {
+          this.$store.dispatch("addMessage", {
+            message: err,
+            type: "error",
+          });
         });
     },
     deletePost(ev){
@@ -97,7 +103,10 @@ export default {
         })
         .catch((err) => {
           // Handle the error
-          console.log(err);
+          this.$store.dispatch("addMessage", {
+            message: err,
+            type: "error",
+          });
         });
     },
   },

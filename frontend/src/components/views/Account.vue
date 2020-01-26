@@ -16,7 +16,7 @@
           Post List
         </router-link>
       </div>
-      
+
       <div>
         <router-link
           to="/edit-account">

@@ -5,7 +5,7 @@ const pool = require('../controllers/db.js');
 const {makeError, makeErrorResponse, sendError, valsInBody} = require('./utilities.js');
 
 /**
- * 
+ *
  * @param {*} req Express Request object
  * @param {*} res Express response object
  * @param {*} next Express next function
@@ -50,10 +50,62 @@ const authenticateUser = (req, res, next) => {
       });
     })
     .catch((err) => {
+      saveFailedLogin(req.ip);
       const error = makeErrorResponse(err);
       sendError(error, res);
       return;
     });
+};
+
+const checkFailedLogins = (req, res, next) => {
+  const cooldownMins = 30;
+  const addr = req.ip;
+  const startTime = new Date(
+    new Date().getTime() - cooldownMins * 60 * 1000
+  );
+  pool.execute(`
+    SELECT COUNT(id)
+    FROM failed_logins
+    WHERE address = ?
+      AND date > ?
+  `,
+  [
+    addr,
+    startTime,
+  ],
+  (err, results, fields) => {
+    // console.log(results[0]['COUNT(id)']);
+    const failures = results[0]['COUNT(id)'];
+
+    if (failures >= 10){
+      res.status(403).end();
+      saveFailedLogin(addr);
+      return;
+    }
+    next();
+  });
+};
+
+const saveFailedLogin = (addr) => {
+  // console.log("Failed Login", addr);
+  const now = new Date();
+  pool.execute(`
+    INSERT INTO failed_logins (
+      address, date)
+    VALUES (
+      ?, ?
+    )
+  `,
+  [
+    addr,
+    now
+  ],
+  (err, results, fields) => {
+    if (err){
+      console.log(err);
+    }
+  }
+  );
 };
 
 const checkUserPasswordById = (id, password) => {
@@ -78,7 +130,7 @@ const checkUserPassword = (query, params, password) => {
           reject(makeError("Database Server Error", err, 500));
           return;
         };
-  
+
         if (results.length <= 0){
           reject(makeError("User Not Found", "User Not Found", 401));
           return;
@@ -141,11 +193,11 @@ const makeJWTToken = (user, exp) => {
 }
 
 /**
- * 
+ *
  * @param {Object} req Express Request object
  * @param {Object} res Express response object
  * @param {Function} next Express next function
- * 
+ *
  * This middleware checks for the existence of the authorization header, retrieves
  * the JWT from it and verifies it.
  */
@@ -162,7 +214,7 @@ const authenticateToken = (req, res, next) => {
   }
 
   const token = req.headers.authorization.split(' ')[1];
-  
+
   jwt.verify(token, global.jwtSecret, (err, decoded) => {
     if (err){
       const error = makeError("Invalid Token", "Invalid Token", 401);
@@ -184,4 +236,5 @@ module.exports = {
   getUserById,
   checkUserPasswordByEmail,
   checkUserPasswordById,
+  checkFailedLogins,
 };

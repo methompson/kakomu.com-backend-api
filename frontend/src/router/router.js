@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import Home from '../views/Home.vue';
-import Post from '../views/Post.vue';
-import About from '../views/About.vue';
+import Home from '../components/views/Home.vue';
+import Post from '../components/views/Post.vue';
+import About from '../components/views/About.vue';
 
 Vue.use(VueRouter);
 
@@ -29,32 +29,32 @@ const routes = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "login" */ '../views/Login.vue'),
+    component: () => import(/* webpackChunkName: "login" */ '../components/views/Login.vue'),
   },
   {
     path: '/account',
     name: 'account',
-    component: () => import(/* webpackChunkName: "account" */ '../views/Account.vue'),
+    component: () => import(/* webpackChunkName: "account" */ '../components/views/Account.vue'),
   },
   {
     path: '/admin-post-list',
     name: 'admin-post-list',
-    component: () => import(/* webpackChunkName: "account" */ '../views/AdminPostList.vue'),
+    component: () => import(/* webpackChunkName: "account" */ '../components/views/AdminPostList.vue'),
   },
   {
     path: '/edit-account',
     name: 'edit-account',
-    component: () => import(/* webpackChunkName: "account" */ '../views/EditUser.vue'),
+    component: () => import(/* webpackChunkName: "account" */ '../components/views/EditUser.vue'),
   },
   {
     path: '/add-post',
     name: 'add-post',
-    component: () => import(/* webpackChunkName: "add-post" */ '../views/PostAdd.vue'),
+    component: () => import(/* webpackChunkName: "add-post" */ '../components/views/PostAdd.vue'),
   },
   {
     path: '/edit-post/:slug',
     name: 'edit-post',
-    component: () => import(/* webpackChunkName: "edit-post" */ '../views/PostEdit.vue'),
+    component: () => import(/* webpackChunkName: "edit-post" */ '../components/views/PostEdit.vue'),
   },
 
 ];

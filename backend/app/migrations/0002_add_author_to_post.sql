@@ -15,7 +15,7 @@ BEGIN
     SELECT 'posts.author does not exist' as '';
     ALTER TABLE posts
       ADD author INT,
-      ADD FOREIGN KEY (author) 
+      ADD FOREIGN KEY (author)
         REFERENCES users(id);
     SELECT 'Created posts.author' as '';
   ELSE

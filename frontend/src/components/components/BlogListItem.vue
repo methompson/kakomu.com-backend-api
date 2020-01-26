@@ -29,7 +29,7 @@ export default {
   props: {
     post: {
       type: Object,
-      default: () => {
+      default(){
         return {
           title: "Default Title",
           content: "No Content Here",

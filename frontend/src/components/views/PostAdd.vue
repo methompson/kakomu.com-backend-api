@@ -6,7 +6,7 @@
 <script>
 import PostEditor from "../components/PostEditor.vue";
 
-export default {  
+export default {
   components: {
     PostEditor,
   },
@@ -29,7 +29,10 @@ export default {
           return true;
         })
         .catch((err) => {
-          // Display the error
+          this.$store.dispatch("addMessage", {
+            message: err,
+            type: "error",
+          });
         });
     },
   },
