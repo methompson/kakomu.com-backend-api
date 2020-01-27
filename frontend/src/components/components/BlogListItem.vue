@@ -93,10 +93,12 @@ export default {
     transition-duration: 200ms;
     font-weight: 700;
     font-size: 1.75em;
+    display: inline-block;
+    line-height: 1em;
   }
 
   a:hover {
-    border-bottom: 1px solid #110148;
+    border-bottom: 1px solid #ff3e3e;
   }
 }
 

@@ -33,20 +33,28 @@
     </div>
 
     <div>
-      <button
+      <div
+        class="editBtn"
         @click="saveDraft">
         Save Draft
-      </button>
+      </div>
 
-      <button
+      <br>
+
+      <div
+        class="editBtn"
         @click="publishDraft">
         Publish
-      </button>
+      </div>
 
-      <button
+      <br>
+
+      <div
+        class="editBtn"
+        v-if="post.id > 0"
         @click="deletePost">
         Delete This Post
-      </button>
+      </div>
     </div>
   </div>
 </template>
@@ -84,9 +92,9 @@ export default {
       ],
     });
 
-    this.newTitle = this.title;
-    this.contentArea.value(this.content);
-    this.newTags = this.tags;
+    this.newTitle = this.post.title;
+    this.contentArea.value(this.post.content);
+    this.newTags = this.post.tags;
   },
   computed: {
     contentPreview(){
@@ -98,18 +106,20 @@ export default {
     },
   },
   props: {
-    title: {
-      type: String,
-      default: "",
-    },
-    content: {
-      type: String,
-      default: "",
-    },
-    tags: {
-      type: String,
-      default: "",
-    },
+    post: {
+      type: Object,
+      default(){
+        return {
+          id: -1,
+          title: "",
+          author: "",
+          slug: "",
+          datePublished: 0,
+          content: "",
+          tags: "",
+        };
+      },
+    }
   },
   data(){
     return {
@@ -139,27 +149,41 @@ export default {
       post.published = true;
       this.$emit('transmitPost', post);
     },
-    deletePost(){
-      // return this.$store.dispatch("deletePost", {
-      //   id: this.post.id,
-      // })
-      //   .then((res) => {
-      //     return this.$router.push({
-      //       path: '/',
-      //     });
-      //   })
-      //   .catch((err) => {
-      //     // Handle the error
-      //     this.$store.dispatch("addMessage", {
-      //       message: err,
-      //       type: "error",
-      //     });
-      //   });
+    async deletePost(){
+      if (this.post.id < 0){
+        return false;
+      }
+
+      return this.$store.dispatch("deletePost", {
+        id: this.post.id,
+      })
+        .then((res) => {
+          return this.$router.push({
+            path: '/',
+          });
+        })
+        .catch((err) => {
+          // Handle the error
+          this.$store.dispatch("addMessage", {
+            message: err,
+            type: "error",
+          });
+        });
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
-
+.editBtn {
+  display: inline-block;
+  padding: 0.3em 0.6em;
+  margin: 0.2em 0;
+  background-color: #ff3e3e;
+  border: 1px solid darken(#ff3e3e, 20%);
+  color: white;
+  border-radius: 0.4em;
+  -webkit-box-shadow: 3px 2px 3px 0px rgba(0,0,0,0.5);
+  box-shadow: 3px 2px 3px 0px rgba(0,0,0,0.5);
+}
 </style>

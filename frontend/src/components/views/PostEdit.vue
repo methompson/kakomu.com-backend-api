@@ -2,6 +2,7 @@
   <div>
     <PostEditor
       v-if="postLoaded"
+      :post="post"
       :title="post.title"
       :content="post.content"
       :tags="post.tags"
@@ -41,7 +42,7 @@ export default {
   },
   methods: {
     getPost(){
-      this.$store.dispatch('getPostBySlugAdmin', {
+      return this.$store.dispatch('getPostBySlugAdmin', {
         slug: this.slug,
       })
         .then((result) => {

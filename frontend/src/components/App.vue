@@ -54,7 +54,7 @@ export default {
 
 .view {
   flex-grow: 100;
-  margin-bottom: 1em;
+  margin: 1em 0;
 }
 
 #app {
