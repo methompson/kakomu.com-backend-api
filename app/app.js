@@ -1,5 +1,6 @@
 // Internal Node imports
 const http = require('http');
+const uuidv4 = require("uuid/v4");
 
 // External imports
 const express = require('express');

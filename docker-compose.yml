@@ -7,7 +7,7 @@ services:
         volumes:
             - ./app:/srv/app
         container_name: backend
-        command: npm start --prefix /srv/app
+        command: npm run start --prefix /srv/app
     db:
         container_name: mysql
         image: mysql

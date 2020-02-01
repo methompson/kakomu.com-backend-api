@@ -200,6 +200,7 @@ const getBlogPostsByPage = (req, res, next) => {
     ],
     (err, results, fields) => {
       if (err) {
+        console.log(err);
         reject({
           status: 500,
           message: "Server Error",
