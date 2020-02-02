@@ -125,24 +125,24 @@ const addPost = (req, res, next) => {
     }
     resolve();
   })
-  .then(() => {
-    // Check what's actually IN the body
-    post.title = 'title' in req.body ? req.body.title : "";
-    post.tags = 'tags' in req.body ? req.body.tags : "";
-    post.content = 'content' in req.body ? req.body.content : "";
-    post.published = 'published' in req.body ? req.body.published : false;
-    post.authorId = 'authorId' in req.body ? req.body.authorId : req._user.userId;
+    .then(() => {
+      // Check what's actually IN the body
+      post.title = 'title' in req.body ? req.body.title : "";
+      post.tags = 'tags' in req.body ? req.body.tags : "";
+      post.content = 'content' in req.body ? req.body.content : "";
+      post.published = 'published' in req.body ? req.body.published : false;
+      post.authorId = 'authorId' in req.body ? req.body.authorId : req._user.userId;
 
-    if (!('datePublished') in req.body || !post.published){
-      post.datePublished = new Date(0);
-    } else {
-      post.datePublished = now;
-    }
+      if (!('datePublished') in req.body || !post.published){
+        post.datePublished = new Date(0);
+      } else {
+        post.datePublished = now;
+      }
 
-    // Get a unique slug by looking at the database
-    // and generating one based on other blog posts
-    return getUniqueSlug(post.title);
-  })
+      // Get a unique slug by looking at the database
+      // and generating one based on other blog posts
+      return getUniqueSlug(post.title);
+    })
     .then((result) => {
       const slug = result;
       post.slug = slug;
@@ -194,7 +194,7 @@ const addPost = (req, res, next) => {
             slug: post.slug,
           },
         };
-        
+
       } else {
         message = {
           message: "No Post added"

@@ -19,33 +19,24 @@ app.set('trust proxy', true);
 global.jwtSecret = "secret";
 
 // Setting up the body parser for getting JSON data
-app.use( bodyParser.json() );
 
 // Getting routes
 const blogRoutes = require('./routes/blog');
 const adminRoutes = require('./routes/blog-admin');
 const authRoutes = require('./routes/auth');
 
-// app.use('/:path', (req, res, next) => {
-//   console.log(req.ip);
-//   next();
-// });
+const fileRoutes = require('./routes/files');
 
-app.use('/api/blog', cors(), blogRoutes);
-app.use('/api/admin', cors(), adminRoutes);
-app.use('/api/auth', cors(), authRoutes);
+app.use('/api/blog', bodyParser.json(), cors(), blogRoutes);
+app.use('/api/admin', bodyParser.json(), cors(), adminRoutes);
+app.use('/api/auth', bodyParser.json(), cors(), authRoutes);
 
-// Fallback routes
-
-// Home page
-app.get('/', (req, res, next) => {
-  res.send("<h1>Welcome to my blog!!</h1>")
-});
+app.use('/api/files', cors(), fileRoutes);
 
 // 404 Error
 app.use('/:path', (req, res, next) => {
   let path = req.params.path;
-  res.status(404).send("<h1>" + path + " Not Found</h1>");
+  res.status(404).send("<h1>" + path + " Not Found.</h1>");
   // res.status(404).render('404', {path: path});
 });
 

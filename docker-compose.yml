@@ -7,9 +7,11 @@ services:
         volumes:
             - ./app:/srv/app
         container_name: backend
-        command: npm run start --prefix /srv/app
+        command: npm run start-dev --prefix /srv/app
     db:
         container_name: mysql
+        ports:
+            - '3306:3306'
         image: mysql
         volumes:
             - db_data:/var/lib/mysql
@@ -21,6 +23,7 @@ services:
             MYSQL_DATABASE: blog_db
             MYSQL_USER: blog_user
             MYSQL_PASSWORD: blog_pw
+            MYSQL_ROOT_HOST: '%'
 
     adminer:
         container_name: adminer

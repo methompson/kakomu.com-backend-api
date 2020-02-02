@@ -192,29 +192,14 @@ const makeJWTToken = (user, exp) => {
   );
 }
 
-/**
- *
- * @param {Object} req Express Request object
- * @param {Object} res Express response object
- * @param {Function} next Express next function
- *
- * This middleware checks for the existence of the authorization header, retrieves
- * the JWT from it and verifies it.
- */
 const authenticateToken = (req, res, next) => {
-  // Do we have the authorization header?
-  // Is the authorization header structured correctly?
-  if (  !('authorization' in req.headers)
-    ||  req.headers.authorization.split(' ').length < 2
-    ||  req.headers.authorization.split(' ')[0] != "Bearer"
-  ){
-    const error = makeError("Authorization token not provided", "Authorization token not provided", 401);
+  if (!('_token' in req)){
+    const error = makeError("Invalid Token", "No Token Provided", 401);
     sendError(error, res);
     return;
   }
 
-  const token = req.headers.authorization.split(' ')[1];
-
+  const token = req._token;
   jwt.verify(token, global.jwtSecret, (err, decoded) => {
     if (err){
       const error = makeError("Invalid Token", "Invalid Token", 401);
@@ -228,9 +213,48 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
+/**
+ *
+ * @param {Object} req Express Request object
+ * @param {Object} res Express response object
+ * @param {Function} next Express next function
+ *
+ * This middleware checks for the existence of the authorization header, retrieves
+ * the JWT from it and verifies it.
+ */
+const getTokenFromHeaders = (req, res, next) => {
+  // Do we have the authorization header?
+  // Is the authorization header structured correctly?
+  if (  !('authorization' in req.headers)
+    ||  req.headers.authorization.split(' ').length < 2
+    ||  req.headers.authorization.split(' ')[0] != "Bearer"
+  ){
+    const error = makeError("Authorization token not provided", "Authorization token not provided", 401);
+    sendError(error, res);
+    return;
+  }
+
+  req._token = req.headers.authorization.split(' ')[1];
+  next();
+};
+
+const getTokenFromCookies = (req, res, next) => {
+  console.log("Cookies", req.cookies);
+  if ( !('kakAuthToken' in req.cookies)){
+    const error = makeError("Authorization token not provided", "Authorization token not provided", 401);
+    sendError(error, res);
+    return;
+  }
+
+  req._token = req.cookies.kakAuthToken;
+  next();
+};
+
 module.exports = {
   authenticateUser,
   authenticateToken,
+  getTokenFromHeaders,
+  getTokenFromCookies,
   makeJWTToken,
   getUserByEmail,
   getUserById,
