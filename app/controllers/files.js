@@ -100,11 +100,16 @@ const streamVideoFile = (req, res) => {
   // If the client requests a portion of the video other than the beginning
   // we need to get that portion from the headers of the request.
   let start = 0;
+  let rangeEnd = 0;
   if ('range' in req.headers) {
     let range = req.headers.range.replace(/bytes=/, '').split("-");
 
     if (range[0]) {
       start = range[0];
+    }
+
+    if (range[1]){
+      rangeEnd = range[1];
     }
   }
 
@@ -138,15 +143,16 @@ const streamVideoFile = (req, res) => {
       const totalSize = range[1];
 
       const end = totalSize - 1;
+      if (rangeEnd === 0){
+        rangeEnd = end;
+      }
 
-      const head = {
-          'Content-Range': 'bytes '+start+'-'+end+'/'+totalSize,
-          'Accept-Ranges': 'bytes',
-          'Content-Length': totalSize-start,
-          'Content-Type': 'video/mp4',
-      };
+      res.status(206);
+      res.append('Content-Range', 'bytes ' + start + '-' + end + '/' + totalSize)
+      res.append('Accept-Ranges', 'bytes');
+      res.append('Content-Length', rangeEnd - start + 1);
+      res.append('Content-Type', 'video/mp4');
 
-      res.writeHead(206, head);
       streamRes.pipe(res);
     }
   );

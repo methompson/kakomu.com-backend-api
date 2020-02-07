@@ -6,6 +6,7 @@ const uuidv4 = require("uuid/v4");
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+require('dotenv').config();
 
 // Setting the timezone
 process.env.TZ = "America/Chicago";
@@ -16,7 +17,7 @@ const app = express();
 app.set('trust proxy', true);
 
 // global.jwtSecret = uuidv4();
-global.jwtSecret = "secret";
+global.jwtSecret = process.env.JWT_SECRET;
 
 // Setting up the body parser for getting JSON data
 
