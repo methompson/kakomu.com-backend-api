@@ -122,6 +122,11 @@ const streamVideoFile = (req, res) => {
     },
     (streamRes) => {
 
+      // If the client closes their connection, we will close the connection with the file server.
+      req.on("close", () => {
+        streamRes.destroy();
+      });
+
       const { statusCode } = streamRes;
 
       // The file server will respond with 404 if the file doesn't exist on the server
@@ -144,7 +149,7 @@ const streamVideoFile = (req, res) => {
 
       const end = totalSize - 1;
       if (rangeEnd === 0){
-        rangeEnd = end;
+        rangeEnd = start + 1024 * 1024 * 2;
       }
 
       res.status(206);
