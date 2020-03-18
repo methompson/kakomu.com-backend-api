@@ -3,7 +3,18 @@ const router = express.Router();
 
 const authController = require('../controllers/auth.js');
 
+router.use(authController.checkFailedLogins);
+
 // Login endpoint
-router.post('/login', authController.checkFailedLogins, authController.authenticateUser);
+router.post('/login', authController.authenticateUser);
+router.post('/validate',
+  authController.getTokenFromHeaders,
+  authController.authenticateToken,
+  (req, res, next) => {
+    res.json({
+      token: req._user,
+    });
+  }
+);
 
 module.exports = router;
